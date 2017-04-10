@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>收货</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/superMarket.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="js/mui.js"></script>
+		<script type="text/javascript" src="js/commonPDA.js"></script>
+		<script type="text/javascript" src="js/mui.min.js"></script>
+		<script type="text/javascript" src="js/jquery.min.js"></script>
+		
+	</head>
+	<style>
+		.checked {
+			margin: 20px;
+		}
+	</style>
+	<header class="mui-bar mui-bar-nav">
+		<a class="mui-icon mui-icon-back mui-pull-left mui-action-back"></a>
+		<a href="index.html" class="mui-icon mui-icon-home  mui-pull-right"></a>
+		<h1 class="mui-title">收货</h1>
+	</header>
+
+	<body style="margin:60px 0 20px 0;">
+
+		<div class="mui-input-row mui-search">
+			<input id="sheetCode" type="search" class="mui-input-clear" placeholder="请输入收货单号">
+		</div>
+
+		<h5 class="mui-content-padded">订单类型：</h5>
+		<div class="mui-card">
+
+			<div class="mui-input-row mui-radio">
+				<label>订货单</label>
+				<input value="1" name="radio1" type="radio" checked>
+			</div>
+			<div class="mui-input-row mui-radio">
+				<label>配送单</label>
+				<input value="2" name="radio1" type="radio">
+			</div>
+			<div class="mui-input-row mui-radio">
+				<label>调拨单</label>
+				<input value="3" name="radio1" type="radio">
+			</div>
+		</div>
+
+		<div class="mui-button-row">
+			<button class="mui-btn  mui-btn-primary" id="all" onclick="checkAll()">全选</button>&nbsp;&nbsp;
+			<button class="mui-btn  mui-btn-primary" id="othercheck" onclick="otherCheck()">反选</button>&nbsp;&nbsp;
+			<!--<button class="mui-btn  mui-btn-primary" value="3" onclick="delOrderList()">删除</button>-->
+		</div>
+		<h5 class="mui-content-padded">查询结果：</h5>
+		<div class="mui-card" id="rs"></div>
+		<div class="mui-button-row">
+			<button class="mui-btn  mui-btn-primary" value="searchSheet" id="info" onclick="gotoSearch()">查清单</button>&nbsp;&nbsp;
+			<button class="mui-btn  mui-btn-primary" value="" onclick="gotoDianhuo()">点货</button>&nbsp;&nbsp;
+			<button class="mui-btn  mui-btn-primary" value="countSheet" id="preConfrimBtn" >审核</button>&nbsp;&nbsp;
+			<button class="mui-btn  mui-btn-primary" value="checkSheet" id="comfirmBtn">复核</button>
+		</div>
+      <div class="mui-card" id="rs2"></div>
+	</body>
+	<script>
+
+		
+	
+		if(window.plus) {
+				plusReady();
+				mui.init();
+			} else {
+				document.addEventListener("plusready", plusReady, false)
+			}
+
+			function plusReady() {
+				var uuid = plus.device.uuid; 
+				var ws = plus.webview.currentWebview();
+				return uuid;
+			}
+		//enter事件
+		$(document).ready(function() {
+			$("#sheetCode").focus();
+			$("#sheetCode").keydown(function(e) {
+				var curKey = e.which;
+				if(curKey == 13) {
+					searchList();
+				}
+			});
+		});
+
+		//页面打开时自动加载已添加订单列表
+		mui.plusReady(function() {
+			searchList();
+		})
+
+		//全选	
+		function checkAll() {
+			var checkBox = $("input:checkbox");
+			for(var i = 0; i < checkBox.length; i++) {
+				checkBox[i].checked = true;
+			}
+		}
+		//反选
+		function otherCheck() {
+			var checkBox = $("input:checkbox");
+			for(var i = 0; i < checkBox.length; i++) {
+				if(checkBox[i].checked == true) {
+					checkBox[i].checked = false;
+				} else {
+					checkBox[i].checked = true;
+				}
+			}
+		}
+
+		//查清单，plus.webview.open()是H5的页面跳转方法，这里要把orderNo作为参数传递到searchReceiveGoods.html，采用localStorage的方法进行存储
+		function gotoSearch() {
+			var orderNo = getCheck_val();
+			if(orderNo != null && orderNo != '\'\'') {
+				var w = plus.webview.open("searchReceiveGoods.html", "none", "none", "slide-in-right", "none", "none");
+				localStorage.setItem("orderNo", orderNo);
+			} else {
+				alert("请至少选择一条记录进行查询！");
+				return;
+			}
+		}
+
+		//点货
+		function gotoDianhuo() {
+			var orderNo = getCheck_val();
+			obj = $("input:checkbox");
+			check_val = [];
+			for(k in obj) {
+				if(obj[k].checked)
+					check_val.push(obj[k].value);
+			}
+			if(check_val.length > 1) {
+				alert("只能选择一条记录进行点货！");
+				return;
+			}
+			if(orderNo == null || orderNo == '\'\'') {
+				alert("请至少选择一条记录进行点货！");
+				return;
+			} else {
+				var w = plus.webview.open("dianhuo.html", "none", "none", "slide-in-right", "none", "none");
+				localStorage.setItem("orderNo", orderNo);
+				//alert($('input:radio:checked').val());
+				localStorage.setItem("sheetType", $('input:radio:checked').val());
+			}
+		}
+
+		//绑定动态生产的checkbox列表，
+		$("div").delegate('[type="checkbox"]', "click", function() {
+			if(!$(this).prop('checked')) {
+				$(this).prop('checked', false);
+			} else {
+				$(this).prop('checked', true);
+				if($(this).next().text() != "未预审") {
+					$('#preConfrimBtn').attr("disabled", true);
+				}
+			}
+
+		});
+       //选择配送单的时候复核按钮置灰
+         $("div").delegate('[type="radio"]', "click", function() {
+         	if(!$('[type="radio"]:eq(1)').prop('checked')){
+         		$('#comfirmBtn').attr("disabled", false);
+         	}else{
+         		$('#comfirmBtn').attr("disabled", true);
+         	}
+         	
+         });
+
+         
+		//获取checkbox列表的收货单号
+		function getCheck_val() {
+			obj = $("input:checkbox");
+			check_val = [];
+			for(k in obj) {
+				if(obj[k].checked)
+					check_val.push(obj[k].value);
+			}
+			return "'" + check_val + "'";
+
+		}
+
+		//增加收货单
+		function searchList() {
+			//var url = "http://192.168.170.242:8080/SRV/ShipRreceive";
+			//var url = "http://192.168.171.20:8080/SRV/ShipRreceive";
+			var url = StoreInfo.getInfo(urlPDAId) + "ShipRreceive";
+			mui.ajax(url, {
+				data: {
+					storeCode: StoreInfo.getInfo(storeId),
+					userCode: StoreInfo.getInfo(userCodeId),
+					uuid: plusReady(),
+					sheetCode: $("#sheetCode").val().trim(),
+					vFlag: 1,
+					sheetType: $('input:radio:checked').val(),
+					method: "searchList",
+				},
+				dataType: 'json',
+				type: 'POST',
+				success: function(data) {
+					if(data.ErrorType == 0) {
+						alert(data.ErrorMsg);
+						var html_ = '';
+						var stage;
+						for(var i = 0; i < data.Infos.length; i++) {
+							html_ += '<div>' +
+								'<input  class="checked" type="checkbox" value="' + data.Infos[i].sheetCode + '"/>' +
+								data.Infos[i].sheetCode +
+								+'</div>';
+							if(data.Infos[i].flag == 1) {
+								stage = "未预审";
+							}
+							if(data.Infos[i].flag == 0) {
+								stage = "已预审";
+							}
+							if(data.Infos[i].flag == 100) {
+								stage = "已处理";
+							}
+							html_ += '<span>' + stage + '</span>';
+
+						}
+						$("#rs").html(html_);
+						$("#sheetCode").val('');
+						$("#sheetCode").focus();
+					}
+					if(data.ErrorType == 1) {
+						var html_ = '';
+						var stage;
+						for(var i = 0; i < data.Infos.length; i++) {
+							html_ += '<div>' +
+								'<input  class="checked" type="checkbox" value="' + data.Infos[i].sheetCode + '"/>' +
+								data.Infos[i].sheetCode +
+								+'</div>';
+							if(data.Infos[i].flag == 1) {
+								stage = "未预审";
+							}
+							if(data.Infos[i].flag == 0) {
+								stage = "已预审";
+							}
+							if(data.Infos[i].flag == 100) {
+								stage = "已处理";
+							}
+							html_ += '<span>' + stage + '</span>';
+						}
+						$("#rs").html(html_);
+						$("#sheetCode").val('');
+						$("#sheetCode").focus();
+					}
+				}
+
+			});
+		}
+
+		//删除单号
+	/*	function delOrderList() {
+			//var url = "http://192.168.170.242:8080/SRV/ShipRreceive";
+			var url = "http://192.168.171.20:8080/SRV/ShipRreceive";
+			mui.ajax(url, {
+				data: {
+					storeCode: StoreInfo.getInfo(storeId),
+					userCode: StoreInfo.getInfo(userCodeId),
+					uuid: plusReady(),
+					sheetCode: getCheck_val(),
+					vFlag: 3,
+					sheetType: $('input:radio:checked').val(),
+					method: "searchList",
+				},
+				dataType: 'json',
+				type: 'POST',
+				success: function(data) {
+					if(data.ErrorType == 0) {
+						alert(data.ErrorMsg);
+					}
+					if(data.ErrorType == 1) {
+						alert(data.ErrorMsg);
+						var html_ = '';
+						var stage;
+						for(var i = 0; i < data.Infos.length; i++) {
+							html_ += '<div>' +
+								'<input  class="checked" type="checkbox" value="' + data.Infos[i].sheetCode + '"/>' +
+								data.Infos[i].sheetCode +
+								+'</div>';
+							if(data.Infos[i].flag == 1) {
+								stage = "未预审";
+							}
+							if(data.Infos[i].flag == 0) {
+								stage = "已预审";
+							}
+							if(data.Infos[i].flag == 100) {
+								stage = "已处理";
+							}
+							html_ += '<span>' + stage + '</span>';
+						}
+						$("#rs").html(html_);
+						$("#sheetCode").val('');
+						$("#sheetCode").focus();
+					}
+				}
+
+			});
+		}*/
+
+		//审核
+		document.getElementById("preConfrimBtn").addEventListener('tap', function() {
+			var btnArray = ['否', '是'];
+			var url = StoreInfo.getInfo(urlPDAId) + "ShipRreceive";
+			mui.ajax(url, {
+				data: {
+					uuid: plusReady(),
+					sheetCode: getCheck_val(),
+					sheetType: $('input:radio:checked').val(),
+					method: "checkReSheet",
+					vFlag:"4"
+				},
+				dataType: 'json',
+				type: 'POST',
+				success: function(data) {
+					if(data.ErrorType == 0) {
+						alert(data.ErrorMsg);
+					}
+					if(data.ErrorType == 1) {
+						alert(data.ErrorMsg);
+						var html_ ='';
+						for(var i=0 ; i<data.infoS.length ; i++){
+							html_+='<div>'
+							+'<div>'+ data.infoS[i].sheetCode +'</div>'
+							+'<div>'+ data.infoS[i].barCode +'</div>'
+							+'<div>'+ data.infoS[i].gmcname +'</div>'
+							+'<div>'+ data.infoS[i].bidyssl +'</div>'
+							+'<div>'+ data.infoS[i].bidsssl +'</div>'	
+							+'</div>';
+						}
+						//$('#rs2').html(html_);
+					/*	mui.confirm($('#rs2').html(html_), '订单审核', btnArray, function(e) {
+							if(e.index == 1) {
+								// info.innerText = '你刚确认MUI是个好框架';
+							} else {
+								return;
+								//info.innerText = 'MUI没有得到你的认可，继续加油'
+							}
+						})*/
+
+					}
+				}
+
+			});
+
+		});
+
+	
+	</script>
+
+</html>

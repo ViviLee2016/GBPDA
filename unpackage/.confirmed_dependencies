@@ -1,0 +1,558 @@
+{
+	"index.html": {
+		"href": "index.html",
+		"resources": [
+			"js/mui.min.js",
+			"css/mui.min.css",
+			"fonts/mui.ttf",
+			"receiveTotalBox.html",
+			"receiveGoodsList.html",
+			"pandian.html",
+			"js/jquery.min.js",
+			"js/mui.js",
+			"dacangyaohuo.html",
+			"goodsInfoSearch.html",
+			"dianjianyaohuo.html",
+			"css/comStyle.css",
+			"huojialiebiao.html",
+			"login.html",
+			"zhituidan.html",
+			"res/icon/css/font-awesome.css",
+			"res/icon/fonts/fontawesome-webfont.woff2",
+			"css/superMarket.css"
+		],
+		"refer": [
+			"goodsInfoSearch.html",
+			"template.html",
+			"indexWarp.html",
+			"goodsList.html",
+			"receiveTotalBox.html",
+			"receiveGoodsList.html",
+			"pandian.html",
+			"huoweiliebiao.html",
+			"searchReceiveGoods.html",
+			"login.html",
+			"dianjianyaohuo.html",
+			"dacangyaohuo.html",
+			"huojialiebiao.html",
+			"zhituidan.html"
+		],
+		"priority": 0
+	},
+	"login.html": {
+		"resources": [
+			"js/jquery.min.js",
+			"css/common.css",
+			"fonts/mui.ttf",
+			"css/superMarket.css",
+			"js/mui.js",
+			"css/mui.css",
+			"js/mui.picker.min.js",
+			"css/mui.picker.min.css",
+			"index.html",
+			"indexWarp.html",
+			"js/commonPDA.js",
+			"css/mui.min.css"
+		],
+		"refer": [
+			"index.html",
+			"indexWarp.html",
+			"receiveTotalBox.html",
+			"goodsList.html",
+			"huoweiliebiao.html"
+		]
+	},
+	"goodsInfoSearch.html": {
+		"resources": [
+			"css/common.css",
+			"css/superMarket.css",
+			"js/mui.js",
+			"css/mui.css",
+			"css/mui.min.css",
+			"js/jquery.min.js",
+			"js/commonPDA.js",
+			"goodsInfoSearch.html",
+			"js/jquery.autocomplete.js",
+			"fonts/mui.ttf",
+			"index.html",
+			"css/comStyle.css"
+		],
+		"refer": [
+			"goodsInfoSearch.html",
+			"index.html"
+		]
+	},
+	"goodsInfoSearchWarp.html": {
+		"resources": [
+			"goodsInfoSearch.html",
+			"js/mui.min.js",
+			"fonts/mui.ttf",
+			"css/mui.min.css",
+			"login.html"
+		],
+		"refer": [
+			"goodsInfoSearch.html",
+			"login.html"
+		]
+	},
+	"receiveDispose.html": {
+		"resources": [
+			"css/app.css",
+			"fonts/mui.ttf",
+			"js/mui.js",
+			"css/mui.css",
+			"js/jquery.min.js",
+			"css/superMarket.css"
+		],
+		"refer": []
+	},
+	"login1.html": {
+		"resources": [
+			"js/mui.min.js",
+			"css/mui.min.css"
+		],
+		"refer": []
+	},
+	"indexWarp.html": {
+		"resources": [
+			"js/mui.min.js",
+			"css/mui.min.css",
+			"login.html",
+			"fonts/mui.ttf",
+			"index.html"
+		],
+		"refer": [
+			"login.html",
+			"goodsInfoSearch.html",
+			"index.html"
+		]
+	},
+	"goodsList.html": {
+		"resources": [
+			"css/mobiscroll_date.css",
+			"js/jquery.min.js",
+			"js/mobiscroll_date.js",
+			"css/common.css",
+			"js/mobiscroll.js",
+			"css/superMarket.css",
+			"js/mui.js",
+			"css/mui.css",
+			"css/mobiscroll.css",
+			"fonts/mui.ttf",
+			"css/mui.min.css",
+			"js/commonPDA.js",
+			"css/layer.css",
+			"js/layer.js",
+			"js/layer.m.js"
+		],
+		"refer": [
+			"index.html"
+		]
+	},
+	"goodsListWarp.html": {
+		"resources": [
+			"js/mui.min.js",
+			"fonts/mui.ttf",
+			"css/mui.min.css",
+			"goodsList.html",
+			"goodsInfoSearchWarp.html"
+		],
+		"refer": [
+			"goodsList.html",
+			"goodsInfoSearch.html",
+			"goodsInfoSearchWarp.html",
+			"login.html",
+			"index.html",
+			"indexWarp.html"
+		]
+	},
+	"new_file.html": {
+		"resources": [
+			"js/base.js",
+			"%3C%\u003dbasePath%%3Ecss/iconfont.css",
+			"js/jquery.min.js",
+			"%3C%\u003dbasePath%%3Ecss/amazeui.min.css",
+			"js/amazeui.min.js",
+			"css/amazeui.min.css",
+			"%3C%\u003dbasePath%%3Ejs/datePicker/WdatePicker.js",
+			"%3C%\u003dbasePath%%3Ecss/base.css",
+			"css/iconfont.css",
+			"index.html",
+			"js/mui.js",
+			"css/mui.min.css",
+			"images/school_bus.png",
+			"images/test.png",
+			"images/schedule.png",
+			"images/writing.png",
+			"images/search.png",
+			"images/pencil.png",
+			"images/notebook.png",
+			"images/newspaper.png",
+			"fonts/mui.ttf",
+			"css/mobiscroll_date.css",
+			"js/mobiscroll_date.js",
+			"css/common.css",
+			"js/mobiscroll.js",
+			"js/commonPDA.js",
+			"css/superMarket.css",
+			"css/mui.css",
+			"css/mobiscroll.css"
+		],
+		"refer": [
+			"goodsInfoSearch.html",
+			"login.html"
+		]
+	},
+	"receiveTotalBox.html": {
+		"resources": [
+			"js/jquery.min.js",
+			"js/mui.min.js",
+			"fonts/mui.ttf",
+			"css/mui.min.css",
+			"js/commonPDA.js",
+			"js/mui.js",
+			"js/Validform_v5.3.2_min.js",
+			"css/superMarket.css"
+		],
+		"refer": [
+			"index.html"
+		]
+	},
+	"receiveGoodsList.html": {
+		"resources": [
+			"js/jquery.min.js",
+			"js/mui.min.js",
+			"fonts/mui.ttf",
+			"css/mui.min.css",
+			"js/commonPDA.js",
+			"css/superMarket.css",
+			"js/Validform_v5.3.2_min.js",
+			"js/mui.js",
+			"index.html",
+			"js/xback.js"
+		],
+		"refer": [
+			"searchReceiveGoods.html",
+			"index.html",
+			"dianhuo.html"
+		]
+	},
+	"searchReceiveGoods.html": {
+		"resources": [
+			"index.html",
+			"css/mui.min.css",
+			"css/superMarket.css",
+			"js/mui.js",
+			"fonts/mui.ttf",
+			"js/jquery.min.js",
+			"js/mui.min.js",
+			"js/commonPDA.js",
+			"js/Validform_v5.3.2_min.js"
+		],
+		"refer": [
+			"index.html",
+			"dianhuo.html"
+		]
+	},
+	"dianhuo.html": {
+		"refer": [
+			"index.html",
+			"searchReceiveGoods.html"
+		],
+		"resources": [
+			"js/jquery.min.js",
+			"js/mui.min.js",
+			"fonts/mui.ttf",
+			"css/mui.min.css",
+			"js/commonPDA.js",
+			"css/superMarket.css",
+			"js/mui.js",
+			"index.html"
+		]
+	},
+	"pandian.html": {
+		"resources": [
+			"css/mobiscroll_date.css",
+			"js/mobiscroll_date.js",
+			"css/common.css",
+			"js/mobiscroll.js",
+			"css/mui.css",
+			"css/mobiscroll.css",
+			"index.html",
+			"js/jquery.min.js",
+			"fonts/mui.ttf",
+			"css/mui.min.css",
+			"js/commonPDA.js",
+			"css/superMarket.css",
+			"js/mui.js",
+			"js/refresh.js"
+		],
+		"refer": [
+			"index.html",
+			"huoweiliebiao.html",
+			"login.html"
+		]
+	},
+	"huoweiliebiao.html": {
+		"resources": [
+			"css/mobiscroll_date.css",
+			"js/jquery.min.js",
+			"js/mobiscroll_date.js",
+			"css/common.css",
+			"fonts/mui.ttf",
+			"js/mobiscroll.js",
+			"css/mui.min.css",
+			"js/commonPDA.js",
+			"css/superMarket.css",
+			"js/mui.js",
+			"css/mui.css",
+			"css/mobiscroll.css",
+			"index.html",
+			"pandian.html",
+			"js/refresh.js"
+		],
+		"refer": [
+			"pandianluru.html",
+			"index.html",
+			"ABjiaodui.html",
+			"pandian.html",
+			"login.html",
+			"searchReceiveGoods.html",
+			"dianhuo.html"
+		]
+	},
+	"dacangyaohuo.html": {
+		"resources": [
+			"css/mobiscroll_date.css",
+			"js/jquery.min.js",
+			"js/mobiscroll_date.js",
+			"css/common.css",
+			"fonts/mui.ttf",
+			"js/mobiscroll.js",
+			"css/mui.min.css",
+			"js/commonPDA.js",
+			"css/superMarket.css",
+			"js/mui.js",
+			"css/mui.css",
+			"css/mobiscroll.css",
+			"index.html",
+			"css/comStyle.css"
+		],
+		"refer": [
+			"index.html",
+			"huoweiliebiao.html"
+		]
+	},
+	"pandianluru.html": {
+		"refer": [
+			"huoweiliebiao.html",
+			"index.html",
+			"login.html"
+		],
+		"resources": [
+			"css/mobiscroll_date.css",
+			"js/jquery.min.js",
+			"js/mobiscroll_date.js",
+			"css/common.css",
+			"fonts/mui.ttf",
+			"js/mobiscroll.js",
+			"css/mui.min.css",
+			"js/commonPDA.js",
+			"css/superMarket.css",
+			"js/mui.js",
+			"css/mui.css",
+			"css/mobiscroll.css",
+			"index.html",
+			"css/comStyle.css",
+			"js/refresh.js"
+		]
+	},
+	"ABjiaodui.html": {
+		"refer": [
+			"index.html",
+			"huoweiliebiao.html",
+			"huoweichayi.html",
+			"login.html"
+		],
+		"resources": [
+			"index.html",
+			"css/mobiscroll_date.css",
+			"js/jquery.min.js",
+			"js/mobiscroll_date.js",
+			"css/common.css",
+			"fonts/mui.ttf",
+			"js/mobiscroll.js",
+			"css/mui.min.css",
+			"js/commonPDA.js",
+			"css/superMarket.css",
+			"js/mui.js",
+			"css/mui.css",
+			"css/mobiscroll.css"
+		]
+	},
+	"huoweichayi.html": {
+		"resources": [
+			"index.html",
+			"css/mobiscroll_date.css",
+			"js/jquery.min.js",
+			"js/mobiscroll_date.js",
+			"css/common.css",
+			"js/mobiscroll.js",
+			"fonts/mui.ttf",
+			"css/mui.min.css",
+			"js/commonPDA.js",
+			"css/superMarket.css",
+			"js/mui.js",
+			"css/mui.css",
+			"css/mobiscroll.css"
+		],
+		"refer": [
+			"index.html",
+			"huoweiliebiao.html",
+			"login.html"
+		]
+	},
+	"pullrefresh_sub.html": {
+		"resources": [
+			"js/mui.min.js",
+			"css/mui.min.css",
+			"fonts/mui.ttf"
+		],
+		"refer": []
+	},
+	"dianjianyaohuo.html": {
+		"resources": [
+			"index.html"
+		],
+		"refer": [
+			"index.html"
+		]
+	},
+	"huojialiebiao.html": {
+		"resources": [
+			"css/mobiscroll_date.css",
+			"js/mobiscroll_date.js",
+			"css/common.css",
+			"js/mobiscroll.js",
+			"js/commonPDA.js",
+			"css/superMarket.css",
+			"css/mui.css",
+			"css/mobiscroll.css",
+			"js/jquery.min.js",
+			"fonts/mui.ttf",
+			"css/comStyle.css",
+			"css/mui.min.css",
+			"js/mui.js",
+			"index.html",
+			"js/refresh.js"
+		],
+		"refer": [
+			"index.html",
+			"addHwInfo.html",
+			"searchHw.html"
+		]
+	},
+	"addHwInfo.html": {
+		"resources": [
+			"js/jquery.min.js",
+			"fonts/mui.ttf",
+			"js/mobiscroll.js",
+			"js/commonPDA.js",
+			"css/comStyle.css",
+			"css/mui.css",
+			"css/mobiscroll.css",
+			"css/mobiscroll_date.css",
+			"css/common.css",
+			"js/mobiscroll_date.js",
+			"css/mui.min.css",
+			"css/superMarket.css",
+			"js/mui.js",
+			"js/refresh.js",
+			"js/layui.js",
+			"css/layui.mobile.css",
+			"css/style1.css",
+			"js/jquery.leanModal.min.js",
+			"css/layui.css",
+			"css/layer.css",
+			"js/layer.js",
+			"yourskin/style.css",
+			"layer/skin/yourskin/style.css",
+			"layer/layer.js",
+			"layer/skin/default/layer.css"
+		],
+		"refer": [
+			"index.html"
+		]
+	},
+	"searchHw.html": {
+		"resources": [
+			"js/jquery.min.js",
+			"fonts/mui.ttf",
+			"js/mobiscroll.js",
+			"js/commonPDA.js",
+			"css/comStyle.css",
+			"css/mui.css",
+			"css/mobiscroll.css",
+			"css/mobiscroll_date.css",
+			"css/common.css",
+			"js/mobiscroll_date.js",
+			"css/mui.min.css",
+			"css/superMarket.css",
+			"js/mui.js",
+			"index.html"
+		],
+		"refer": [
+			"index.html"
+		]
+	},
+	"zhituidan.html": {
+		"resources": [
+			"js/refresh.js",
+			"css/mobiscroll_date.css",
+			"js/mobiscroll_date.js",
+			"js/mobiscroll.js",
+			"layer/layer.js",
+			"layer/skin/default/layer.css",
+			"css/mobiscroll.css",
+			"layer/skin/yourskin/style.css",
+			"js/jquery.min.js",
+			"fonts/mui.ttf",
+			"js/commonPDA.js",
+			"css/comStyle.css",
+			"css/mui.css",
+			"css/common.css",
+			"css/mui.min.css",
+			"css/superMarket.css",
+			"js/mui.js",
+			"js/pickDate.js",
+			"index.html"
+		],
+		"refer": [
+			"index.html",
+			"makePeituidan.html",
+			"huoweiliebiao.html"
+		]
+	},
+	"makePeituidan.html": {
+		"resources": [
+			"js/refresh.js",
+			"index.html",
+			"js/jquery.min.js",
+			"fonts/mui.ttf",
+			"js/mobiscroll.js",
+			"js/commonPDA.js",
+			"css/comStyle.css",
+			"css/mui.css",
+			"css/mobiscroll.css",
+			"css/mobiscroll_date.css",
+			"css/common.css",
+			"js/mobiscroll_date.js",
+			"css/mui.min.css",
+			"css/superMarket.css",
+			"js/mui.js"
+		],
+		"refer": [
+			"index.html"
+		]
+	}
+}

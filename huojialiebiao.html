@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="css/mui.css" rel="stylesheet" type="text/css" />
+		<link href="css/common.css" rel="stylesheet" type="text/css" />
+		<link href="css/mui.min.css" rel="stylesheet" type="text/css" />
+		<link href="css/superMarket.css" rel="stylesheet" type="text/css" />
+		<link href="css/mobiscroll_date.css" rel="stylesheet" type="text/css" />
+		<link href="css/mobiscroll.css" rel="stylesheet" type="text/css" />
+		<link href="css/comStyle.css" rel="stylesheet" type="text /css" />
+		<script type="text/javascript" src="js/mui.js"></script>
+		<script src="js/jquery.min.js"></script>
+		<script src="js/mobiscroll_date.js" charset="gb2312"></script>
+		<script src="js/mobiscroll.js"></script>
+		<script src="js/commonPDA.js"></script>
+		<script src="js/refresh.js"></script>
+		
+	</head>
+	<header class="mui-bar mui-bar-nav">
+		<a class="mui-icon mui-icon-back mui-pull-left mui-action-back"></a>		
+		<a href="#" onclick="gotoIndex()" class="mui-icon mui-icon-home  mui-pull-right"></a>	
+		<h1 class="mui-title">货架列表</h1>
+	</header>
+	<body class="body_contant">		
+		<div class="mui-input-row mui-search">
+			<input id="hw" type="search" class="mui-input-clear" placeholder="输入货位">		
+		</div>
+		<div class="mui-button-row mui-content-padded">
+			<button class="mui-btn mui-btn-primary mui-btn-block" onclick="hwSearch()">货位查询</button>
+		</div>
+		<h5 class="mui-content-padded">已录货位</h5>
+
+		<div id="rs" class="table_Space"></div>
+
+	</body>
+	<script type="text/javascript">
+		  
+		
+		mui.plusReady(function(){		 
+			loadHjlist();
+		
+		})
+		
+		//添加AddNew自定义事件监听
+		window.addEventListener('loadHjlist', function() {
+			plus.webview.getWebviewById('huojia').reload();
+		});
+			
+		
+	//enter事件,enter录入货位
+		$(document).ready(function() {
+			$("#hw").keydown(function(e) {
+				var curKey = e.which;
+				if(curKey == 13) {
+					var hwInhuojia = $('#hw').val().trim();
+		            localStorage.setItem("hwInhuojia",hwInhuojia);
+					if(hwInhuojia!=''){
+						var w = plus.webview.open("addHwInfo.html", "addHwInfo", {}, "slide-in-right");	
+					}else{
+						alert("请输入货位！");
+					}
+				}
+			});
+		});
+		
+		function loadHjlist(obj){
+			var url = StoreInfo.getInfo(urlPDAId) + "MGP";
+			mui.ajax(url,{
+				data:{
+					method:"searchList",
+					storeCode: StoreInfo.getInfo(storeId),
+					userCode: StoreInfo.getInfo(userCodeId)
+					
+				},
+				dataType:'json',
+				type:'post',
+				success:function(data){
+					if(data.ErrorType == 0){
+						plus.nativeUI.toast(data.ErrorMsg);	
+					}else{
+						var html_ ='<table class="table_warp"><th>货位号</th><th>已有商品（种）</th>';
+						for(var i = 0; i < data.InfoS.length; i++) {
+							html_ +='<tr onclick="gotoDetil(this)">' +							   
+								'<td>' + data.InfoS[i].HW + '</td>' +
+								'<td>' + data.InfoS[i].bcount + '</td>';														
+							html_+='</tr>';
+						}
+						+'</table>';
+						$("#rs").html(html_);
+					}
+				}
+			})
+		}
+		
+			
+		function hwSearch(){
+			var w = plus.webview.open("searchHw.html","searchHw",{},"slide-in-right");
+		}
+		
+		function gotoDetil(obj){			
+			var hwInhuojiaList = $('td:first',obj).text();			
+			localStorage.setItem("hwInhuojia",hwInhuojiaList);
+			var w = plus.webview.open("addHwInfo.html", "addHwInfo", {}, "slide-in-right");
+		}
+	</script>
+</html>

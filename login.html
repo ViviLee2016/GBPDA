@@ -1,0 +1,152 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="css/mui.css" rel="stylesheet" type="text/css" />
+		<link href="css/common.css" rel="stylesheet" type="text/css" />
+		<link href="css/superMarket.css" rel="stylesheet" type="text /css" />
+		<link href="css/mui.picker.min.css" rel="stylesheet" type="text /css" />
+		<script src="js/mui.js"></script>
+		<script src="js/commonPDA.js"></script>
+		<script src="js/jquery.min.js"></script>
+		<script src="js/mui.picker.min.js"></script>
+	</head>
+	<header id="header" class="mui-bar mui-bar-nav">
+		<div class="mui-title">
+			<label>登陆</label>
+		</div>
+	</header>
+
+	<body>
+		<div class="mui-content ">
+			<div class="login_title">
+				<h3>广百PDA系统</h3>
+			</div>
+			<div class="mui-card login_form">
+				<form class="mui-input-group">
+					<div class="mui-input-group ">
+						<div class="mui-input-row ">
+							<label>用户名</label>
+							<input type="text" id="userCode" class="mui-input-clear" onblur="checkStore()" placeholder="请输入用户名">
+						</div>
+						<div class="mui-input-row">
+							<label>密码</label>
+							<input type="password" id="pwd" class="mui-input-clear mui-input-password" placeholder="请输入密码">
+						</div>
+						<div class="mui-input-row">
+							<label>门店</label>
+							<select id="storeCode">
+							</select>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="mui-button-row mui-content-padded">
+				<button class="mui-btn mui-btn-primary mui-btn-block" id="login" onclick="login()">登陆</button>
+			</div>
+		</div>
+	</body>
+	<script>
+		mui.init({
+			keyEventBind: {
+				backbutton: true,
+			},
+		});
+		mui.plusReady(function() {
+			var backButtonPress = 0;
+			mui.back = function(event) {
+				backButtonPress++;
+				if(backButtonPress > 1) {
+					plus.runtime.quit();
+				} else {
+					plus.nativeUI.toast('再按一次退出应用');
+				}
+				setTimeout(function() {
+					backButtonPress = 0;
+				}, 1000);
+				return false;
+			};
+		});
+
+		//enter事件,enter录入数量
+		$(document).ready(function() {
+			$("#pwd").keydown(function(e) {
+				var curKey = e.which;
+				if(curKey == 13) {
+					login();
+				}
+			});
+		});
+
+		function checkStore() {
+			$("#storeCode").html('');
+			var userCode = document.getElementById("userCode");
+			var url = "http://192.9.9.118/gbmcc/loginPDA.do";
+			mui.ajax(url, {
+				data: {
+					userCode: userCode.value
+				},
+				dataType: 'json',
+				type: 'POST',
+				success: function(data) {
+					
+					if(data.ErrorType == 1) {
+						var output = [];
+						$.each(data.storeS, function(key, value) {
+							output.push('<option value="' + value.storeCode + '">' + value.storeName + '</option>');
+						});
+						$("#storeCode").html(output.join(''));
+					} else {
+						alert(data.ErrorMsg);
+					}
+				},
+				error: function(xhr, type, errorThrown) {
+					console.log(type);
+				}
+			});
+		}
+
+		function login() {
+			var userCode = document.getElementById("userCode");
+			var password = document.getElementById("pwd");
+			var storeCode = document.getElementById("storeCode");
+				var url = "http://192.9.9.116:8080/gbmcc/loginPDA.do";
+			//var url = "http://192.9.9.118/gbmcc/loginPDA.do";
+
+			mui.ajax(url, {
+				data: {
+					userCode: userCode.value,
+					passWord: password.value,
+					storeCode: storeCode.value
+				},
+				dataType: 'json',
+				type: 'POST',
+				success: function(data) {
+					localStorage.setItem("userPowerId",data.userPower);
+					if(data.ErrorType == 1) {
+						StoreInfo.setStoreCode(storeCode.value); 
+						//StoreInfo.setUrlPDA(data.url);//开发地址
+						//alert(StoreInfo.getInfo(urlPDAId));
+						StoreInfo.setUrlPDA("http://192.168.171.20:8080/SRV/"); //PC开发地址	
+						 //alert(StoreInfo.getInfo(urlPDAId));
+					   //StoreInfo.setUrlPDA("http://192.168.170.242:8080/SRV/"); //测试地址					 
+						StoreInfo.setUserCode(userCode.value);
+						alert(StoreInfo.getInfo(urlPDAId));
+						location.href = "index.html";
+					} else {
+						alert(data.ErrorMsg);
+					}
+				},
+				error: function(xhr, type, errorThrown) {
+					plus.nativeUI.toast("系统异常,请检测网络或联系管理员");
+					//异常处理；
+					console.log(type);
+
+				}
+			});
+		}
+	</script>
+
+</html>

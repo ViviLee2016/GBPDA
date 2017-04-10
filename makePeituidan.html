@@ -1,0 +1,250 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="css/mui.css" rel="stylesheet" type="text/css" />
+		<link href="css/common.css" rel="stylesheet" type="text/css" />
+		<link href="css/mui.min.css" rel="stylesheet" type="text/css" />
+		<link href="css/superMarket.css" rel="stylesheet" type="text/css" />
+		<link href="css/mobiscroll_date.css" rel="stylesheet" type="text/css" />
+		<link href="css/mobiscroll.css" rel="stylesheet" type="text/css" />
+		<link rel="stylesheet" href="css/comStyle.css" />
+		<script type="text/javascript" src="js/mui.js"></script>
+		<script src="js/jquery.min.js"></script>
+		<script src="js/mobiscroll_date.js" charset="gb2312"></script>
+		<script src="js/mobiscroll.js"></script>
+		<script src="js/commonPDA.js"></script>
+		<script src="js/refresh.js"></script>
+	</head>
+	<header class="mui-bar mui-bar-nav">
+		<a  class="mui-icon mui-icon-back mui-pull-left mui-action-back"></a>
+		<a href="index.html" class="mui-icon mui-icon-home  mui-pull-right"></a>
+		<h1 class="mui-title">配退单制单</h1>
+	</header>
+
+	<body class="body_contant">
+		<h5 class="mui-content-padded">类型：</h5>
+		<div class="mui-row mui-card">
+			<div class="mui-col-sm-3">
+				<div class="mui-input-row mui-radio ">
+					<label>残次</label>
+					<input value="44444444" name="radio1" type="radio">
+				</div>
+			</div>
+			<div class="mui-col-sm-3">
+				<div class="mui-input-row mui-radio ">
+					<label>可销</label>
+					<input value="11111111" name="radio1" type="radio">
+				</div>
+			</div>
+			<div class="mui-input-row ">
+				<label>备注</label>
+				<input type="text" placeholder="输入货备注(选填)" id="remark" class="mui-input-clear">
+			</div>
+		</div>
+		<h5 class="mui-content-padded">子库存：</h5>
+		<div class="mui-row mui-card">
+			<div class="mui-col-sm-3">
+				<div class="mui-input-row mui-radio ">
+					<label>卖场</label>
+					<input value="1" name="radio2" type="radio" checked>
+				</div>
+			</div>
+			<div class="mui-col-sm-3">
+				<div class="mui-input-row mui-radio ">
+					<label>理货区</label>
+					<input value="2" name="radio2" type="radio">
+				</div>
+			</div>
+			<div class="mui-col-sm-3">
+				<div class="mui-input-row mui-radio ">
+					<label>仓库</label>
+					<input value="3" name="radio2" type="radio">
+				</div>
+
+			</div>
+			<div class="mui-col-sm-3">
+				<div class="mui-input-row mui-radio ">
+					<label>坏货区</label>
+					<input value="4" name="radio2" type="radio">
+				</div>
+			</div>
+		</div>
+		<div class="mui-input-row mui-search mui-content-padded">
+			<input id="barCode" type="search" class="mui-input-clear" placeholder="输入商品条码或商品编号">
+		</div>
+		<h5 class="mui-content-padded">商品信息：</h5>
+		<div class="mui-card" id="goodsInfo">
+			<div class="input-row">
+				<label class="label_padding">商品编码(条码)：</label>
+				<span id="goodsCode"></span>
+			</div>
+			<div class="input-row">
+				<label class="label_padding">商品名称：</label>
+				<span id="goodsName"></span>
+			</div>
+			<div class="input-row">
+				<label class="label_padding">规格：
+				    <span id="goodsSize"></span>
+				</label>
+				<label class="label_l label_padding">门店库存：
+				    <span id="goodsStore"></span>
+				</label>
+			</div>
+			<div class="mui-input-row">
+					 <label>数量：</label>
+					 <input id="goodsAmount" type="text" class="mui-input-clear" placeholder="请输入数量"/>
+					</div>
+		</div>
+
+		<h5 class="mui-content-padded">退货记录：(共<span id="sorts">0</span>种 共<span id="unit">0</span>件)</h5>
+		<div id="rs" class="tableSpace"></div>
+		<div class="mui-button-row mui-content-padded">
+			<button disabled="true" class="mui-btn button_baocun mui-btn-block" onclick="saveGoodsInfo()">保存</button>
+		</div>
+	</body>
+	<script>
+		
+		
+		$(document).ready(function() {
+			$("#barCode").keydown(function(e) {
+				var curKey = e.which;
+				if(curKey == 13) {
+					if(!$('input[name="radio1"]').is(":checked")){
+						alert("请选择类型！")
+					}else{
+						getInfo();
+					}                 
+				}
+			});
+		});
+		
+
+		$(document).ready(function() {
+			$("#goodsAmount").keydown(function(e) {
+				var curKey = e.which;
+				if(curKey == 13) {				
+						addInfo();				                
+				}
+			});
+		});
+		
+		var tableFlg = localStorage.getItem("tableFlg");
+		var userOP = localStorage.getItem("userOP");
+		
+		function getInfo() {
+			var url = StoreInfo.getInfo(urlPDAId) + "ShipReturn";
+			var data = {
+				userCode: StoreInfo.getInfo(userCodeId),
+				storeCode: StoreInfo.getInfo(storeId),
+		        barCode:$('#barCode').val(),
+		        flagStr:$('input[name="radio1"]:checked').val(),
+		        zkc:$('input[name="radio2"]:checked').val(),
+		        tableFlg:tableFlg,
+		        remark:$('#remark').val(),
+				method: "getGoods"				
+			};
+			mui.ajax(url, {
+				data: data,
+				dataType: 'json',
+				type: 'POST',
+				contentType: "application/x-www-form-urlencoded; charset=utf-8",
+				success: function(data) {
+					if(data.ErrorType == 0) {
+						alert(data.ErrorMsg);
+					}
+					if(data.ErrorType == 1) {
+					 $('#goodsCode').text(data.InfoS[0].barCode+"("+data.InfoS[0].barCode2+")");
+					 $('#goodsName').text(data.InfoS[0].goodsName);
+					 $('#goodsSize').text(data.InfoS[0].SPEC);
+					 $('#goodsStore').text(data.InfoS[0].kc);
+				      $('#goodsAmount').focus();
+					} 					
+				}				
+			});
+		}
+	
+		function addInfo() {
+			var goodsAmount = $('#goodsAmount').val();			
+			var url = StoreInfo.getInfo(urlPDAId) + "ShipReturn";
+			var data = {
+				userCode: StoreInfo.getInfo(userCodeId),
+				storeCode: StoreInfo.getInfo(storeId),
+		        barCode:$('#barCode').val(),
+		        sfCode:$('input[name="radio1"]:checked').val(),
+		        vHw:$('input[name="radio2"]:checked').val(),
+		        tableFlg:tableFlg,
+		        userOP:userOP,
+		        vNum:goodsAmount,
+				method: "inData"				
+			};
+			if($('#remark').val()!=null || $('#remark').val()!=''){
+				data.remark = $('#remark').val();
+			}
+			mui.ajax(url, {
+				data: data,
+				dataType: 'json',
+				type: 'POST',
+				contentType: "application/x-www-form-urlencoded; charset=utf-8",
+				success: function(data) {
+					if(data.ErrorType == 0) {
+						alert(data.ErrorMsg);
+						alert("22");
+					}
+					if(data.ErrorType == 1) {
+						alert("配退单制单完成！单号："+data.ErrorMsg);
+						var sheetCode = data.ErrorMsg;
+				          loadInfo(sheetCode) ;
+					} 					
+				}				
+			});
+		}
+		
+		function loadInfo(sheetCode) {
+			alert(sheetCode);
+				var url = StoreInfo.getInfo(urlPDAId) + "ShipReturn";
+			var data = {			
+				method: "initdetail",
+				sheetCode:sheetCode,
+				userCode: StoreInfo.getInfo(userCodeId),
+				storeCode: StoreInfo.getInfo(storeId),
+				tableFlg:tableFlg				
+			};
+		
+			mui.ajax(url, {
+				data: data,
+				dataType: 'json',
+				type: 'POST',
+				contentType: "application/x-www-form-urlencoded; charset=utf-8",
+				success: function(data) {
+					if(data.ErrorType == 0) {
+						alert(data.ErrorMsg);
+					}
+					if(data.ErrorType == 1) {
+						alert("11112222");
+				       	var html_ = '<table class="table_warp"><th>商品编码</th><th>条码</th><th>商品名称</th>'+
+				       	'<th>规格</th><th>数量</th><th>供应商</th><th>操作</th>';
+						for(var i = 0; i < data.InfoS.length; i++) {
+							html_ += '<tr onclick="gotoDetil(this)">' +
+								'<td>' + data.InfoS[i].barCode + '</td>' +
+								'<td>' + data.InfoS[i].barCode2 + '</td>' +
+								'<td>' + data.InfoS[i].goodsName + '</td>' +
+								'<td>' + data.InfoS[i].SPEC + '</td>' +
+								'<td>' + data.InfoS[i].kc + '</td>' +
+								'<td>' + data.InfoS[i].kc + '</td>' +
+								'<td>' + data.InfoS[i].kc + '</td>';
+							html_ += '</tr>';
+						} +
+						'</table>';
+						$("#rs").html(html_);
+					} 					
+				}				
+			});
+		}
+		
+		
+	</script>
+
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="css/mui.css" rel="stylesheet" type="text/css" />
+		<link href="css/common.css" rel="stylesheet" type="text/css" />
+		<link href="css/mui.min.css" rel="stylesheet" type="text/css" />
+		<link href="css/superMarket.css" rel="stylesheet" type="text/css" />
+		<link href="css/mobiscroll_date.css" rel="stylesheet" type="text/css" />
+		<link href="css/mobiscroll.css" rel="stylesheet" type="text/css" />
+		<link href="css/layer.css" rel="stylesheet" type="text/css" />
+		<link href="css/comStyle.css" rel="stylesheet" type="text /css" />
+		<script type="text/javascript" src="js/mui.js"></script>
+		<script src="js/jquery.min.js"></script>
+		<script src="js/mobiscroll_date.js" charset="gb2312"></script>
+		<script src="js/mobiscroll.js"></script>
+		<script src="js/commonPDA.js"></script>
+	</head>
+	<header class="mui-bar mui-bar-nav">
+		<a class="mui-icon mui-icon-back mui-pull-left mui-action-back"></a>
+		<a href="index.html" class="mui-icon mui-icon-home  mui-pull-right"></a>
+		<h1 class="mui-title">货位查询</h1>
+	</header>
+
+	<body class="body_contant">
+		<form class="mui-input-group mui-content-padded">
+			<div class="mui-input-row">
+				<input type="text" class="mui-input-clear" id="barCode" placeholder="请输入商品编码/条码" />
+			</div>
+			<div class="mui-input-row">
+				<input type="text" class="mui-input-clear" id="hw" placeholder="请输入货位" />
+			</div>
+			</div>
+	</form>
+		<div class="mui-button-row mui-content-padded">
+				<button class="mui-btn mui-btn-primary mui-btn-block"  onclick="loadAddhwlist()">查询</button>
+			</div>
+		<div id="rs" class="table_Space"></div>
+
+	</body>
+	<script type="text/javascript">
+		//enter事件,enter录入商品编码或条码
+		$(document).ready(function() {
+			$("#barCode").keydown(function(e) {
+				var curKey = e.which;
+				if(curKey == 13) {
+
+				}
+			});
+		});
+	//enter事件,enter录入商品
+			$(document).ready(function() {
+			$("#hw").keydown(function(e) {
+				var curKey = e.which;
+				if(curKey == 13) {
+
+				}
+			});
+		});
+	
+	//页面初始化方法，加载列表
+		function loadAddhwlist() {
+			var url = StoreInfo.getInfo(urlPDAId) + "MGP";
+			var data = {
+					method: "checkMGP",
+					storeCode: StoreInfo.getInfo(storeId),
+					userCode: StoreInfo.getInfo(userCodeId),					
+				}
+				if($('#barCode').val().trim()!=''){
+					data.barCode = $('#barCode').val();
+				}
+				if($('#hw').val().trim()!=''){
+					data.hw = $('#hw').val();
+				}
+		    	mui.ajax(url, {				
+				data:data,
+				dataType: 'json',
+				type: 'POST',
+				contentType:"application/x-www-form-urlencoded; charset=utf-8",
+				success: function(data) {
+					if(data.ErrorType == 0) {
+						plus.nativeUI.toast(data.ErrorMsg);
+					}
+					if(data.ErrorType == 1) {
+						var html_ = '';
+						html_ += '<table class="table_warp"><th>商品编码</th><th>条码</th><th>商品名称</th><th>规格</th><th>排面</th><th>货量</th>';
+						for(var i = 0; i < data.InfoS.length; i++) {
+							html_ += '<tr>' +
+								'<td><div style="width:150px">' + data.InfoS[i].barCode + '</td>' +
+								'<td><div style="width:150px">' + data.InfoS[i].barCode2 + '</div></td>' +
+								'<td><div style="width:100px">' + data.InfoS[i].MGPNAME + '</div></td>' +
+								'<td><div style="width:40px">' + data.InfoS[i].MGPSPEC + '</div></td>' +
+								'<td><div style="width:40px">' + data.InfoS[i].MGPNUM1 + '</div></td>' +
+								'<td><div style="width:40px">' + data.InfoS[i].MGPNUM2 + '</div></td>' ;
+							html_ += '</tr>';
+						}
+						html_ + '</table>';
+						$("#rs").html(html_);						
+					}
+
+				}
+
+			})
+		}
+
+
+	</script>
+
+</html>

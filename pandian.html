@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="css/mui.css" rel="stylesheet" type="text/css" />
+		<link href="css/common.css" rel="stylesheet" type="text/css" />
+		<link href="css/mui.min.css" rel="stylesheet" type="text/css" />
+		<link href="css/superMarket.css" rel="stylesheet" type="text/css" />
+		<link href="css/mobiscroll_date.css" rel="stylesheet" type="text/css" />
+		<link href="css/mobiscroll.css" rel="stylesheet" type="text/css" />
+		<link href="css/layer.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="js/mui.js"></script>
+		<script src="js/jquery.min.js"></script>
+<!--		<script src="js/mobiscroll_date.js" charset="utf-8"></script>
+		<script src="js/mobiscroll.js"></script>-->
+		<script src="js/commonPDA.js"></script>
+       <script src="js/refresh.js"></script>
+	</head>
+	<header class="mui-bar mui-bar-nav">
+		<a href="javascript:history.go(-1)" class="mui-icon mui-icon-back mui-pull-left "></a>
+		 <a href="#" onclick="gotoIndex()" class="mui-icon mui-icon-home  mui-pull-right"></a>	
+		<h1 class="mui-title">盘点</h1>
+	</header>
+<style>
+     tr:active{ 
+     color: #007AFF;
+      }
+</style>
+	<body style="margin:60px 0 20px 0;">
+				
+				<div id="rs" class="tableSpace"></div>
+		
+		
+	</body>
+	<script>
+		if(window.plus) {
+				plusReady();
+				mui.init();
+			} else {
+				document.addEventListener("plusready", plusReady, false)
+			}
+
+			function plusReady() {
+				var ws = plus.webview.currentWebview();
+				
+			}
+			
+		mui.plusReady(function() {
+			pandianList();
+		})
+
+		
+		function pandianList(obj) {
+				var url = StoreInfo.getInfo(urlPDAId)+ "PanDian";
+			//var url = "http://192.168.170.242:8080/SRV/PanDian";//测试地址
+			//var url = "http://192.168.170.35:8080/SRV/PanDian";//开发地址
+			mui.ajax(url, {
+				data: {},
+				dataType: 'json',
+				type: 'POST',
+				contentType:"application/x-www-form-urlencoded; charset=utf-8",
+				success: function(data) {
+					if(data.ErrorType == 0) {
+						alert(data.ErrorMsg);
+					}
+					if(data.ErrorType == 1) {
+						var html_ ='<table class="table_warp"><th >盘点日期</th><th>盘点序号</th><th>盘点方式</th><th>清零</th>';
+						for(var i = 0; i < data.InfoS.length; i++) {
+							html_ +='<tr onclick="gotoDetil(this)">' +							   
+								'<td>' + data.InfoS[i].BCTDATE + '</td>' +
+								'<td>' + data.InfoS[i].BCDSEQ + '</td>';
+								if(data.InfoS[i].BCTTYPE==1){
+									html_+='<td>' + "大盘" + '</td>';
+								}else{
+									html_+='<td>' + "大盘" + '</td>';
+								}
+								 if( data.InfoS[i].BCTISCLR0=="N"){
+								 	html_+='<td>' + "不清" + '</td>';
+								 }else{
+								 	html_+='<td>' + "清零" + '</td>';
+								 }
+						
+							html_+='</tr>';
+						}
+						+'</table>';
+
+						$("#rs").html(html_);
+					}
+				}
+			});
+		}
+
+
+		function gotoDetil(obj){
+			var pandianDate = $('td:first',obj).text();
+			localStorage.setItem("pandianDate",pandianDate);
+			var w = plus.webview.open("huoweiliebiao.html", "huoweiliebiao", {}, "slide-in-right");
+		}
+	</script>
+
+</html>

@@ -1,0 +1,6 @@
+body .layer-ext-yourskin .layui-layer-title{
+	color:white;
+	background: #15AFEF;
+	font-size: medium;
+}
+

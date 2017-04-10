@@ -1,0 +1,280 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="css/mui.css" rel="stylesheet" type="text/css" />
+		<link href="css/common.css" rel="stylesheet" type="text/css" />
+		<link href="css/mui.min.css" rel="stylesheet" type="text/css" />
+		<link href="css/superMarket.css" rel="stylesheet" type="text/css" />
+		<link href="css/mobiscroll_date.css" rel="stylesheet" type="text/css" />
+		<link href="css/mobiscroll.css" rel="stylesheet" type="text/css" />
+		<link href="css/layer.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="js/mui.js"></script>
+		<script src="js/jquery.min.js"></script>
+		<script src="js/mobiscroll_date.js" charset="gb2312"></script>
+		<script src="js/mobiscroll.js"></script>
+		<script src="js/commonPDA.js"></script>
+
+	</head>
+	<header class="mui-bar mui-bar-nav">
+		<a  class="mui-icon mui-icon-back mui-pull-left mui-action-back"></a>
+		<a href="index.html" class="mui-icon mui-icon-home  mui-pull-right"></a>
+		<h1 class="mui-title">商品盘点</h1>
+	</header>
+
+	<div class="mui-input-row mui-search " style="margin: 10px;">
+		<input id="barCode" type="search" class="mui-input-clear" placeholder="请输入单号">
+	</div>
+
+	<h5 class="mui-content-padded">盘点信息</h5>
+	<div class="mui-card">
+		<div class="mui-input-group mui-input-row ">
+			<div class="mui-input-row ">
+				<section id="form">
+					<label>盘点日期</label>
+					<input id="pickDate" type="text" readonly placeholder="请选择盘点日期" />
+				</section>
+			</div>
+			<div class="mui-input-row ">
+				<label>货位</label>
+				<input id="hw" type="text" class="mui-input-clear" placeholder="请输入货位">
+			</div>
+		</div>
+	</div>
+	<div class="mui-button-row mui-content-padded">
+		<button class="mui-btn mui-btn-primary mui-btn-block"  onclick="showTable()" >查询</button>
+	</div>
+	</div>
+	<h5 class="mui-content-padded">查询列表</h5>
+	<div class="mui-content">
+		<div class="mui-card">
+			<div class="mui-input-group mui-input-row ">
+			</div>
+		</div>
+	</div>
+	<div id="list"></div>
+	</div>
+	</div>
+	<!-- off-canvas backdrop -->
+	<div class="mui-off-canvas-backdrop"></div>
+	</div>
+	</div>
+	</div>
+	<script type="text/javascript">
+		//日期选择框的JS
+		$(function() {
+			var currYear = (new Date()).getFullYear();
+			var opt = {};
+			opt.date = {
+				preset: 'date'
+			};
+			opt.datetime = {
+				preset: 'datetime'
+			};
+			opt.time = {
+				preset: 'time'
+			};
+			opt.default = {
+				theme: 'android-ics light', //皮肤样式
+				display: 'modal', //显示方式 
+				mode: 'scroller', //日期选择模式
+				dateFormat: 'yyyy-mm-dd',
+				lang: 'zh',
+				showNow: true,
+				nowText: "今天",
+				startYear: currYear - 50, //开始年份
+				endYear: currYear + 10 //结束年份
+			};
+			$("#pickDate").mobiscroll($.extend(opt['date'], opt['default']));
+		});
+
+		//enter事件
+		$(document).ready(function() {
+			$("#barCode").focus();
+			$("#barCode").keydown(function(e) {
+				var curKey = e.which;
+				if(curKey == 13) {
+					showTable();
+				}
+			});
+		});
+
+		//增加盘点商品
+		function showTable() {
+			var url = StoreInfo.getInfo(urlPDAId) + "PanDian";
+			//var url = "http://192.168.171.20:8080/SRV/PanDian";
+			mui.ajax(url, {
+				data: {
+					storeCode: StoreInfo.getInfo(storeId),
+					userCode: StoreInfo.getInfo(userCodeId),
+					pDate: $("#pickDate").val(),
+					barCode: $("#barCode").val(),
+					hw: $("#hw").val(),
+					uuId: plusReady(),
+					method: "add",
+					//method: "search",
+				},
+				dataType: 'json',
+				type: 'POST',
+				contentType:"application/x-www-form-urlencoded; charset=utf-8",
+				success: function(data) {
+					if(data.ErrorType == 0) {
+							
+					if($("#barCode").val()==null||$("#barCode").val()==''){
+							search();
+						}
+						else{
+							alert(data.ErrorMsg);
+					}
+						
+						//search();
+						$("#barCode").val('');
+						$("#barCode").focus();
+					}
+					if(data.ErrorType == 1) {
+						$("#list").html('');
+						var temphtml = ' <table class="table_warp">' +
+							' <th style="width:10%">编号</th><th style="width:40%">商品名称</th><th style="width:30%">实点数</th><th style="width:20%">操作</th> '
+						for(var i = 0; i < data.ErrorMsg.length; i++) {
+							temphtml += ' <tr> ' +
+								' <td> ' + (i+1)+ '</td> ' +
+								' <td> ' + data.ErrorMsg[i].goodsName + '</td> ' +
+							
+								' <td > <input  onblur="submitTable(this)"  type="text" value="' + data.ErrorMsg[i].vNum + '" /><input  type="hidden" value="' +data.ErrorMsg[i].seqNo+ '" /></td> ' +
+								' <td > <input  type="hidden" value="' +data.ErrorMsg[i].seqNo+ '" /><a id="del" onclick="delTable(this)">' + "删除" + '</a></td> ' +
+								' </tr>'
+							;
+						} +
+						' </table>'
+						$("#list").html(temphtml);
+						$("#barCode").val('');
+						$("#barCode").focus();
+
+					}
+				}
+			});
+		}
+
+		//查询已盘点商品
+		function search() {
+			//alert(StoreInfo.getInfo(userCodeId));
+			var url = StoreInfo.getInfo(urlPDAId) + "PanDian";
+			mui.ajax(url, {
+				data: {
+					storeCode: StoreInfo.getInfo(storeId),
+					userCode: StoreInfo.getInfo(userCodeId),
+					pDate: $("#pickDate").val(),
+					barCode: $("#barCode").val(),
+					hw: $("#hw").val(),
+					uuId: plusReady(),
+					method: "search",
+				 
+				},
+				dataType: 'json',
+				type: 'POST',
+				contentType:"application/x-www-form-urlencoded; charset=utf-8",
+				success: function(data) {
+					if(data.ErrorType == 0) {
+						if($("#barCode").val()==null||$("#barCode").val()=='' ){
+							return;
+						}
+						else{
+							alert(data.ErrorMsg);
+					}
+					}
+					if(data.ErrorType == 1) {		
+						$("#list").html('');
+						var temphtml = ' <table class="table_warp">' +
+							' <th style="width:10%">编号</th><th style="width:40%">商品名称</th><th style="width:30%">实点数</th><th style="width:20%">操作</th> '
+						for(var i = 0; i < data.ErrorMsg.length; i++) {
+							
+							temphtml += ' <tr> ' +
+								' <td> ' + (i+1) + '</td> ' +
+								' <td> ' + data.ErrorMsg[i].goodsName + '</td> ' +						
+								' <td > <input  onblur="submitTable(this)"  type="text" value="' + data.ErrorMsg[i].vNum + '" /><input  type="hidden" value="' +data.ErrorMsg[i].seqNo+ '" /></td> ' +
+								' <td > <input  type="hidden" value="' +data.ErrorMsg[i].seqNo+ '" /><a id="del" onclick="delTable(this)">' + "删除" + '</a></td> ' +
+								' </tr>'
+							;
+						} +
+						' </table>'
+						$("#list").html(temphtml);
+					}
+				}
+			});
+		}
+		//修改实点数
+		function submitTable(obj) {
+			//var url = "http://192.168.171.20:8080/SRV/PanDian";
+			var url = StoreInfo.getInfo(urlPDAId) + "PanDian";
+			var vnum = $(obj).val();
+			var seq  = $(obj).next().val();
+			mui.ajax(url, {
+				data: {
+					storeCode: StoreInfo.getInfo(storeId),
+					userCode: StoreInfo.getInfo(userCodeId),
+					pDate: $("#pickDate").val(),
+					barCode: $("#barCode").val(),
+					hw: $("#hw").val(),
+					uuId: plusReady(),
+					vNum: vnum,
+					method: "up",
+					seqNo: seq
+				},
+				dataType: 'json',
+				type: 'POST',
+				contentType:"application/x-www-form-urlencoded; charset=utf-8",
+				success: function(data) {
+
+					if(data.ErrorType == 0) {
+						alert(data.ErrorMsg);
+					}
+					if(data.ErrorType == 1) {
+						alert("修改实点数成功！");
+						search();
+					}
+				}
+			});
+		}
+		//删除盘点商品
+		function delTable(obj) {
+		//var url = "http://192.168.171.20:8080/SRV/PanDian";
+		var url = StoreInfo.getInfo(urlPDAId) + "PanDian";
+		var seq  = $(obj).prev().val();
+			mui.ajax(url, {
+				data: {
+					storeCode: StoreInfo.getInfo(storeId),
+					userCode: StoreInfo.getInfo(userCodeId),
+					pDate: $("#pickDate").val(),
+					barCode: $("#barCode").val(),
+					hw: $("#hw").val(),
+					uuId: plusReady(),
+					method: "del",
+					seqNo: seq
+				},
+				dataType: 'json',
+				type: 'POST',
+				contentType:"application/x-www-form-urlencoded; charset=utf-8",
+				success: function(data) {
+					if(data.ErrorType == 0) {
+						alert(data.ErrorMsg);
+					}
+					if(data.ErrorType == 1) {
+						alert("删除成功！");
+						search();
+					}
+				}
+			});
+		}
+		
+/*	$('input[type="text"],textarea').on('click', function () {
+  var target = this;
+  setTimeout(function(){
+        target.scrollIntoViewIfNeeded();
+        console.log('scrollIntoViewIfNeeded');
+      },400);
+});*/
+	</script>
+
+</html>

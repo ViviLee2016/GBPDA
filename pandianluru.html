@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="css/mui.css" rel="stylesheet" type="text/css" />
+		<link href="css/common.css" rel="stylesheet" type="text/css" />
+		<link href="css/mui.min.css" rel="stylesheet" type="text/css" />
+		<link href="css/superMarket.css" rel="stylesheet" type="text/css" />
+		<link href="css/mobiscroll_date.css" rel="stylesheet" type="text/css" />
+		<link href="css/mobiscroll.css" rel="stylesheet" type="text/css" />
+		<link href="css/layer.css" rel="stylesheet" type="text/css" />
+		<link href="css/comStyle.css" rel="stylesheet" type="text /css" />
+		<script type="text/javascript" src="js/mui.js"></script>
+		<script src="js/jquery.min.js"></script>
+		<script src="js/mobiscroll_date.js" charset="gb2312"></script>
+		<script src="js/mobiscroll.js"></script>
+		<script src="js/commonPDA.js"></script>
+        <script src="js/refresh.js"></script>
+	</head>
+	<header class="mui-bar mui-bar-nav">
+		<a class="mui-icon mui-icon-back mui-pull-left mui-action-back"></a>		
+		 <a href="#" onclick="gotoIndex()" class="mui-icon mui-icon-home  mui-pull-right"></a>	
+		<h1 class="mui-title">盘点录入</h1>
+	</header>
+<style>
+    tr:active{ 
+     color: #007AFF;
+      }
+</style>
+	<body style="margin:60px 0 20px 0;">
+		
+		<div class="mui-input-row mui-search">
+			<input id="barCode" type="search" class="mui-input-clear" placeholder="输入商品编码或条码">
+		</div>
+
+		<h5 class="mui-content-padded">子仓库：</h5>
+
+		<div class="mui-row  mui-card">
+			<div class="mui-col-sm-3">
+				<div class="mui-input-row mui-radio">
+					<label>卖场</label>
+					<input value="1" name="radio1" type="radio" disabled>
+				</div>
+			</div>
+			<div class="mui-col-sm-3">
+				<div class="mui-input-row mui-radio">
+					<label>理货区</label>
+					<input value="2" name="radio1" type="radio" disabled>
+				</div>
+			</div>
+			<div class="mui-col-sm-3">
+				<div class="mui-input-row mui-radio">
+					<label>仓库</label>
+					<input value="3" name="radio1" type="radio" disabled>
+				</div>
+			</div>
+			<div class="mui-col-sm-3">
+				<div class="mui-input-row mui-radio">
+					<label>坏货区</label>
+					<input value="4" name="radio1" type="radio" disabled>
+				</div>
+			</div>
+		</div>
+		<h5 class="mui-content-padded">AB：</h5>
+		<div class="mui-card mui-row">
+			<div class="mui-col-sm-6">
+				<div class="mui-input-row mui-radio">
+					<label>A</label>
+					<input value="A" name="radio2" type="radio" disabled>
+				</div>
+			</div>
+			<div class="mui-col-sm-6">
+				<div class="mui-input-row mui-radio">
+					<label>B</label>
+					<input value="B" name="radio2" type="radio" disabled>
+				</div>
+			</div>
+		</div>
+		<h5 class="mui-content-padded">货位：</h5>
+		<div class="mui-card">
+			<div class="mui-input-row ">
+				<label>货位</label>
+				<input type="text" id="hw" readonly>
+			</div>
+		</div>
+		<h5 class="mui-content-padded">新增盘点信息：</h5>
+		<div class="mui-card mui-row">
+			<div class="mui-input-row ">
+				<label>商品编码</label>
+				<input type="text" id="goodsCode" readonly>
+			</div>
+			<div class="mui-input-row ">
+				<label>商品条码</label>
+				<input type="text" id="goodsBarCode" readonly>
+			</div>
+			<div class="mui-input-row ">
+				<label>商品名称</label>
+				<input type="text" id="goodsName" style="overflow: scroll;" readonly>				
+			</div>
+	
+			<div class="mui-input-row ">
+				<label>规格</label>
+				<input type="text" id="goodsSize" readonly>
+			</div>
+				
+			<div class="mui-input-row ">
+				<label>数量</label>
+				<input  class="mui-input-clear" type="text" id="goodsAmount" placeholder="输入盘点数量">
+			</div>
+		</div>
+		</div>
+
+		<h5 class="mui-content-padded">盘点记录(已盘<span id="total"></span>种)</h5>		
+		<div id="rs" class="tableSpace mui-content-padded"></div>
+        </div>
+	</body>
+	<script>
+		if(window.plus) {
+			plusReady();
+			mui.init();
+		} else {
+			document.addEventListener("plusready", plusReady, false)
+		}
+
+		function plusReady() {
+			var ws = plus.webview.currentWebview();
+			if($('#goodsCode').val().trim() == '') {
+				$('#goodsAmountBtn').attr('disabled', true);
+			} else {
+				$('#goodsAmountBtn').attr('disabled', false);
+			}
+
+		}
+
+		//获取盘点首页的盘点日期
+		var pandianDate = localStorage.getItem("pandianDate");
+		//获取上一页子仓库的选项值，卖场1，理货区2，仓库3，坏货区4
+		var childKPre = localStorage.getItem("childK");
+		//获取上一页货位号
+		var hw = localStorage.getItem("hw");
+		//获取上一页AB的值：A、B
+		var AB = localStorage.getItem("AB");
+
+		if(AB == "A") { //eq()方法从第0个开始			 
+			$('input[name="radio2"]').eq(0).attr("checked", true);//如果上一页AB的值是A，选择第1个
+		} else {			
+			$('input[name="radio2"]').eq(1).attr("checked", true);
+		}
+		//把上一页自仓库选项的值减1作为该页的选中项
+		$('input[name="radio1"]').eq(childKPre - 1).attr("checked", true);
+		$('#hw').val(hw);
+
+//自动加载盘点明细列表
+		mui.plusReady(function() {
+			if($('input[name="radio2"]:checked').val()=="A"){
+					pandianRecordA();
+				}else{
+					pandianRecordB();
+				}			 
+		})
+
+		//enter事件,通过输入货位号跳转
+		$(document).ready(function() {
+			$("#barCode").focus();
+			$("#barCode").keydown(function(e) {
+				var curKey = e.which;
+				if(curKey == 13) {
+					if(hasRepeat() == 1 && $('#barCode').val()!='') {
+			if($('input[name="radio2"]:checked').val()=="A"){
+					motifyA(1);
+				}else{
+					motifyB(1);
+				}
+						
+					 $('#barCode').val('');
+						return;
+					} else {
+						getItem();
+					
+					}
+				}
+			});
+
+		});
+
+		//enter事件,enter录入数量
+		$(document).ready(function() {
+			$("#goodsAmount").keydown(function(e) {
+				var curKey = e.which;
+				if(curKey == 13) {
+					goodsAmount();
+				}
+			});
+		});
+		
+		mui.init({
+			beforeback: function() {
+				//获得你要前往页面的webview id
+				var Scanner = plus.webview.getWebviewById('huoweiliebiao');
+				//触发前往页面的自定义事件（例：AddNew）,从而进行数据刷新
+				mui.fire(Scanner, 'loadTable');
+				//返回true，继续页面关闭逻辑
+				return true;
+			}
+		});
+
+		function goodsAmount() {
+			if($('#goodsAmount').val() == '' || $('#goodsAmount').val() == 0) {
+				alert("请输入商品数量！");
+				return;
+			} else {
+				if($('input[name="radio2"]:checked').val()=="A"){
+					addItemA();
+				}else{
+					addItemB();
+				}
+				
+			}
+		}
+
+		var motiNum;
+		//不能添加重复商品
+		function hasRepeat() {
+			var success = false;
+			var arr = [];
+			var arrFirst = [];
+			//判断商品条码是否重复
+			$('.table_warp tr').each(function() {
+				arr.push($('td:eq(1)', this).text());
+			});
+			$.each(arr, function(index, value) {
+				if(value == $('#barCode').val()) {
+					success = true;
+					motiNum = $('.table_warp tr:eq('+index+') td:eq(3)').text();
+					return false;
+				}
+			});
+			//判断商品编码是否重复
+			$('.table_warp tr').each(function() {
+				arrFirst.push($('td:eq(0)', this).text());
+			});
+			$.each(arrFirst, function(index, value) {
+				if(value == $('#barCode').val()) {
+					success = true;
+					motiNum = $('.table_warp tr:eq('+index+') td:eq(3)').text();
+					return false;
+				}
+			});
+			return success;
+		}
+
+		//查询已盘点明细
+		function pandianRecordA(obj) {
+			var url = StoreInfo.getInfo(urlPDAId) + "PanDian";			
+			mui.ajax(url, {
+				data: {
+					method: "checkPDHW",
+					storeCode: StoreInfo.getInfo(storeId),
+					userCode: StoreInfo.getInfo(userCodeId),
+					pDate: pandianDate,
+					AB: $('input[name="radio2"]:checked').val(),
+					childK: childKPre,
+					hw: hw
+				},
+				dataType: 'json',
+				type: 'POST',
+				contentType:"application/x-www-form-urlencoded; charset=utf-8",
+				success: function(data) {
+					
+					if(data.ErrorType == 0) {
+						if(data.ErrorMsg==0){
+							$("#rs").html('');
+							$("#total").text(0);
+						}
+									
+					}
+					if(data.ErrorType == 1) {
+						for(var i = 0; i < data.InfoS.length; i++) {
+							if(data.InfoS[i].BCHFLAG == 'Y') {
+								$('.table_warp').attr('onclick', false);
+								$('#barCode').attr('readonly', true);
+							}
+						}
+						$("#rs").html('');
+						var html_ = '<table class="table_warp">' +
+							'<th>商品条码</th><th>商品编码</th><th>商品名称</th><th>数量</th><th>操作</th>';
+						for(var i = 0; i < data.InfoS.length; i++) {
+							html_ += '<tr>' +
+								'<td>' + data.InfoS[i].BCDBARCODE + '</td>' +
+								'<td class="barCode" value="' + data.InfoS[i].barCode + '">' + data.InfoS[i].barCode + '</td>' +
+								'<td><div style="width:100px">' + data.InfoS[i].BCDNAME + '</div></td>' +
+								'<td><div style="width:100px">' + data.InfoS[i].ABNUM + '</div></td>' +
+								'<td><div style="width:100px"><a onclick="motifyA(this)">修改</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a onclick="deleteItem(this)">删除</a></div></td>'; +
+							'</tr>';
+						} +
+						'</table>';
+						$("#rs").html(html_);
+						$("#total").text(data.InfoS.length);
+					}
+				}
+			});
+		}
+		
+		function pandianRecordB(obj) {
+			var url = StoreInfo.getInfo(urlPDAId) + "PanDian";			
+			mui.ajax(url, {
+				data: {
+					method: "checkPDHW",
+					storeCode: StoreInfo.getInfo(storeId),
+					userCode: StoreInfo.getInfo(userCodeId),
+					pDate: pandianDate,
+					AB: $('input[name="radio2"]:checked').val(),
+					childK: childKPre,
+					hw: hw
+				},
+				dataType: 'json',
+				type: 'POST',
+				contentType:"application/x-www-form-urlencoded; charset=utf-8",
+				success: function(data) {
+					if(data.ErrorType == 0) {
+					if(data.ErrorMsg==0){
+							$("#rs").html('');
+							$("#total").text(0);
+						}				
+					}
+					if(data.ErrorType == 1) {
+						for(var i = 0; i < data.InfoS.length; i++) {
+							if(data.InfoS[i].BCHFLAG == 'Y') {
+								$('.table_warp').attr('onclick', false);
+								$('#barCode').attr('readonly', true);
+							}
+						}
+						$("#rs").html('');
+						var html_ = '<table class="table_warp">' +
+							'<th>商品条码</th><th>商品编码</th><th>商品名称</th><th>数量</th><th>操作</th>';
+						for(var i = 0; i < data.InfoS.length; i++) {
+							html_ += '<tr>' +
+
+								'<td>' + data.InfoS[i].BCDBARCODE + '</td>' +
+								'<td class="barCode" value="' + data.InfoS[i].barCode + '">' + data.InfoS[i].barCode + '</td>' +
+								'<td><div style="width:100px">' + data.InfoS[i].BCDNAME + '</div></td>' +
+								'<td><div style="width:100px">' + data.InfoS[i].ABNUM + '</div></td>' +
+								'<td><div style="width:100px"><a onclick="motifyB(this)">修改</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a onclick="deleteItem(this)">删除</a></div></td>'; +
+							'</tr>';
+						} +
+						'</table>';
+						$("#rs").html(html_);
+						$("#total").text(data.InfoS.length);
+					}
+				}
+			});
+		}
+		
+		
+		//增加盘点A
+		function addItemA() {
+			var url = StoreInfo.getInfo(urlPDAId) + "PanDianA";
+			var data = {
+				method: "checkPDBarCodeA",
+				storeCode: StoreInfo.getInfo(storeId),
+				userCodeA: StoreInfo.getInfo(userCodeId),
+				pDate: pandianDate,
+				childK: childKPre,
+				barCodeA: $("#barCode").val(),
+				hwA: hw
+			};
+
+			var radio2 = $('input[name="radio2"]');
+			if(radio2[0].checked == true) {
+				data.vNum = $("#goodsAmount").val();
+			} else {
+				data.cNum = $("#goodsAmount").val();
+			}
+
+			mui.ajax(url, {
+				data: data,
+				dataType: 'json',
+				type: 'POST',
+				contentType:"application/x-www-form-urlencoded; charset=utf-8",
+				success: function(data) {
+					if(data.ErrorType == 0) {
+						alert(data.ErrorMsg);						
+					}
+					if(data.ErrorType == 1) {					
+						pandianRecordA();
+						$("#barCode").val('');
+						$('#goodsCode').val('');
+						$('#goodsBarCode').val('');
+						$('#goodsName').val('');
+						$('#goodsSize').val('');
+						$("#barCode").val('');
+						$("#barCode").focus();
+						$('#goodsAmount').val('');
+					}
+
+				}
+			});
+		}
+
+
+		//增加盘点B
+		function addItemB() {
+			var url = StoreInfo.getInfo(urlPDAId) + "PanDianB";
+			var data = {
+				method: "checkPDBarCodeB",
+				storeCode: StoreInfo.getInfo(storeId),
+				userCodeB: StoreInfo.getInfo(userCodeId),
+				pDate: pandianDate,
+				childK: childKPre,
+				barCodeB: $("#barCode").val(),
+				hwB: hw
+			};
+			
+			var radio2 = $('input[name="radio2"]');
+			if(radio2[0].checked == true) {
+				data.vNum = $("#goodsAmount").val();
+			} else {
+				data.cNum = $("#goodsAmount").val();
+			}
+
+			mui.ajax(url, {
+				data: data,
+				dataType: 'json',
+				type: 'POST',
+				contentType:"application/x-www-form-urlencoded; charset=utf-8",
+				success: function(data) {
+					if(data.ErrorType == 0) {
+						alert(data.ErrorMsg);						
+					}
+					if(data.ErrorType == 1) {
+						pandianRecordB();
+						$("#barCode").val('');
+						$('#goodsCode').val('');
+						$('#goodsBarCode').val('');
+						$('#goodsName').val('');
+						$('#goodsSize').val('');
+						$("#barCode").val('');
+						$("#barCode").focus();
+						$('#goodsAmount').val('');
+					}
+
+				}
+			});
+		}
+
+//修改盘点A
+		function motifyA(obj) {		
+			var url = StoreInfo.getInfo(urlPDAId) + "PanDianA";
+			var barcodeInTable = $(obj).parent().parent().prev().prev().prev().text();
+			var barcodeInInput = $('#barCode').val();
+			var bc;
+			if(barcodeInTable==''){
+				bc = barcodeInInput;
+			}else{
+				bc = barcodeInTable;
+			}		
+			var btnArray = ['取消', '确定'];
+			var motiNumIntb =  $(obj).parent().parent().prev().text();
+			var NumMotify;
+			if(obj==1){
+				 NumMotify = motiNum;				 
+			}else{
+				NumMotify = motiNumIntb;
+			}
+			mui.prompt('请输入数量：', NumMotify , '盘点数量修改', btnArray, function(e) {
+            
+				if(e.index == 1) {
+					mui.ajax(url, {
+						data: {
+							method: "upPDBarCodeA",
+							storeCode: StoreInfo.getInfo(storeId),
+							userCode: StoreInfo.getInfo(userCodeId),
+							pDate: pandianDate,
+							A: $('input[name="radio2"]:checked').val(),
+							childK: childKPre,
+							barCodeA: bc,
+							vNum: e.value,
+							hwA: hw
+						},
+						dataType: 'json',
+						type: 'POST',
+						contentType:"application/x-www-form-urlencoded; charset=utf-8",
+						success: function(data) {							
+							if(data.ErrorType == 0) {
+								if(data.ErrorMsg=="商品不存在"){
+								$("#rs").html('');
+								$("#total").text("0");
+								}else{
+									alert(data.ErrorMsg);
+								}
+							}
+							if(data.ErrorType == 1) {
+								alert("修改成功！");
+								pandianRecordA();
+							}
+						}
+					});
+				} else {
+					return;
+				}
+			})
+		}
+//修改盘点B
+		function motifyB(obj) {		
+			var url = StoreInfo.getInfo(urlPDAId) + "PanDianB";
+			var barcodeInTable = $(obj).parent().parent().prev().prev().prev().text();
+			var barcodeInInput = $('#barCode').val();
+			var bc;
+			if(barcodeInTable==''){
+				bc = barcodeInInput;
+			}else{
+				bc = barcodeInTable;
+			}		
+			var btnArray = ['取消', '确定'];
+			var motiNumIntb =  $(obj).parent().parent().prev().text();
+			var NumMotify;
+			if(obj==1){
+				 NumMotify = motiNum;				 
+			}else{
+				NumMotify = motiNumIntb;
+			}
+			mui.prompt('请输入数量：', NumMotify , '盘点数量修改', btnArray, function(e) {
+            
+				if(e.index == 1) {
+					mui.ajax(url, {
+						data: {
+							method: "upPDBarCodeB",
+							storeCode: StoreInfo.getInfo(storeId),
+							userCode: StoreInfo.getInfo(userCodeId),
+							pDate: pandianDate,
+							B: $('input[name="radio2"]:checked').val(),
+							childK: childKPre,
+							barCodeB: bc,
+							cNum: e.value,
+							hwB: hw
+						},
+						dataType: 'json',
+						type: 'POST',
+						contentType:"application/x-www-form-urlencoded; charset=utf-8",
+						success: function(data) {
+							if(data.ErrorType == 0) {
+								if(data.ErrorMsg=="商品不存在"){
+								$("#rs").html('');
+								$("#total").text("0");
+								}else{
+									alert(data.ErrorMsg);
+								}
+							}
+							if(data.ErrorType == 1) {
+								alert("修改成功！");
+								pandianRecordB();
+							}
+						}
+					});
+				} else {
+					return;
+				}
+			})
+		}
+
+
+		//删除盘点
+		function deleteItem(obj) {
+			var url = StoreInfo.getInfo(urlPDAId) + "PanDian";
+			var barcodeInTable = $(obj).parent().parent().prev().prev().prev().text();
+			var btnArray = ['取消', '确定'];
+			mui.confirm('确定删除该条记录？', '删除盘点记录', btnArray, function(e) {
+				if(e.index == 1) {
+					mui.ajax(url, {
+						data: {
+							method: "delPDBarCode",
+							storeCode: StoreInfo.getInfo(storeId),
+							userCode: StoreInfo.getInfo(userCodeId),
+							pDate: pandianDate,
+							AB:$('input[name="radio2"]:checked').val(),
+							childK: childKPre,
+							barCode: barcodeInTable,
+							hw: hw
+						},
+						dataType: 'json',
+						type: 'POST',
+						contentType:"application/x-www-form-urlencoded; charset=utf-8",
+						success: function(data) {
+							if(data.ErrorType == 0) {								
+									alert(data.ErrorMsg);																
+							}
+							if(data.ErrorType == 1) {
+								alert(data.ErrorMsg);	
+								if($('input[name="radio2"]:checked').val()=="A"){
+									pandianRecordA();
+								}else{
+									pandianRecordB();
+								}	
+							}
+						}
+					});
+				} else {
+					return;
+				}
+			})
+		}
+
+		//把新增盘点添加到列表
+		function getItem() {
+			var url = StoreInfo.getInfo(urlPDAId) + "PanDian";
+			mui.ajax(url, {
+				data: {
+					method: "getPDBarCode",
+					storeCode: StoreInfo.getInfo(storeId),
+					userCode: StoreInfo.getInfo(userCodeId),
+					pDate: pandianDate,
+					AB: $('input[name="radio2"]:checked').val(),
+					childK: childKPre,
+					barCode: $("#barCode").val(),
+					hw: hw
+				},
+				dataType: 'json',
+				type: 'POST',
+				contentType:"application/x-www-form-urlencoded; charset=utf-8",
+				success: function(data) {
+					if(data.ErrorType == 0) {
+						alert(data.ErrorMsg);
+						$("#barCode").val('');
+						$("#barCode").focus();
+						
+					}
+					if(data.ErrorType == 1) {
+						$('#goodsCode').val(data.InfoS[0].barCode);
+						$('#goodsBarCode').val(data.InfoS[0].BCDBARCODE);
+						$('#goodsName').val(data.InfoS[0].BCDNAME);
+						$('#goodsSize').val(data.InfoS[0].BCDSPEC);
+						$('#goodsAmount').focus();
+					}
+
+				}
+			});
+		}
+	</script>
+
+</html>

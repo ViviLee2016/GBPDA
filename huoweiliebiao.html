@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="css/mui.css" rel="stylesheet" type="text/css" />
+		<link href="css/common.css" rel="stylesheet" type="text/css" />
+		<link href="css/mui.min.css" rel="stylesheet" type="text/css" />
+		<link href="css/superMarket.css" rel="stylesheet" type="text/css" />
+		<link href="css/mobiscroll_date.css" rel="stylesheet" type="text/css" />
+		<link href="css/mobiscroll.css" rel="stylesheet" type="text/css" />
+		<link href="css/layer.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="js/mui.js"></script>
+		<script src="js/jquery.min.js"></script>
+		<script src="js/mobiscroll_date.js" charset="gb2312"></script>
+		<script src="js/mobiscroll.js"></script>
+		<script src="js/commonPDA.js"></script>
+        <script src="js/refresh.js"></script>
+	</head>
+<style>
+     tr:active{ 
+     color: #007AFF;
+      }
+</style>
+	<header class="mui-bar mui-bar-nav">
+		<a class="mui-icon mui-icon-back mui-pull-left mui-action-back"></a>
+         <a href="#" onclick="gotoIndex()" class="mui-icon mui-icon-home  mui-pull-right"></a>		
+		<h1 class="mui-title">货位列表</h1>
+	</header>
+
+	<body style="margin:60px 0 40px 0;">
+		<h5 class="mui-content-padded">子库存：</h5>
+		<div class="mui-row mui-card">
+			<div class="mui-col-sm-3">
+				<div class="mui-input-row mui-radio ">
+					<label>卖场</label>
+					<input value="1" name="radio1" type="radio" checked>
+				</div>
+			</div>
+			<div class="mui-col-sm-3">
+				<div class="mui-input-row mui-radio ">
+					<label>理货区</label>
+				<input value="2" name="radio1" type="radio">
+				</div>
+			</div>
+			<div class="mui-col-sm-3">
+				<div class="mui-input-row mui-radio ">
+					<label>仓库</label>
+				<input value="3" name="radio1" type="radio">
+				</div>
+
+			</div>
+			<div class="mui-col-sm-3">
+				<div class="mui-input-row mui-radio ">
+				<label>坏货区</label>
+				<input value="4" name="radio1" type="radio">
+				</div>
+
+			</div>
+		</div>
+		<h5 class="mui-content-padded">AB：</h5>
+		<div class="mui-row mui-card">
+			<div class="mui-col-sm-6">
+				<div class="mui-input-row mui-radio ">
+				<label>A</label>
+				<input value="A" name="radio2" type="radio" >
+				</div>
+			</div>
+						<div class="mui-col-sm-6">
+				<div class="mui-input-row mui-radio ">
+				<label>B</label>
+				<input value="B" name="radio2" type="radio">
+				</div>
+			</div>
+	
+		</div>	
+			<div class="mui-card">
+				<div class="mui-input-row ">
+					<label>货位</label>
+					<input type="text" placeholder="输入货位" id="hw" class="mui-input-clear">
+				</div>
+			</div>
+		<div class="mui-button-row mui-content-padded">
+			<button class="mui-btn mui-btn-primary mui-btn-block" onclick="gotoChayi()" id="gotoChayi">AB校对</button>
+		</div>
+		<div id="rs"></div>
+
+
+	</body>
+	<script type="text/javascript">
+		var ws = null;
+		if(window.plus) {
+			plusReady();
+			mui.init();
+		} else {
+			document.addEventListener("plusready", plusReady, false)
+		}
+
+		function plusReady() {
+			ws = plus.webview.currentWebview();
+		}
+
+
+		function gotoChayi() {
+			
+			var userPowerId = localStorage.getItem("userPowerId");						
+			if(userPowerId=="0"){//权限0 查看权限 1 允许校对权限
+				//$('#gotoChayi'). attr('disabled', true);
+				plus.nativeUI.toast("非管理员不能进行AB校对");
+			}else{
+				var w = plus.webview.open("ABjiaodui.html", "ABjiaodui", {},"slide-in-right");
+			}
+			
+		}
+		
+
+		//从盘点首页获取盘点日期
+		var pandianDate = localStorage.getItem("pandianDate");
+
+			//自动加载列表
+		mui.plusReady(function() {
+			loadTable();			
+		});
+		
+
+		//enter事件,通过输入货位号跳转
+		$(document).ready(function() {
+			$("#hw").focus();
+			$("#hw").keydown(function(e) {
+				var curKey = e.which;
+				if(curKey == 13) {
+					if(!$('input[name="radio2"]').is(":checked")){
+						alert("请先选择AB");
+					}else{
+					var hw = $("#hw").val();
+					localStorage.setItem("childK", $('input[name="radio1"]:checked').val());
+					localStorage.setItem("AB", $('input[name="radio2"]:checked').val());
+					localStorage.setItem("hw", hw);
+					checkHW();
+					}
+				}
+			});
+		});
+
+		//通过点击列表跳转
+		function getHw(obj) {
+			var hw = $('td:first', obj).next().text();
+			var abIntable = $('td:first', obj).next().next().text();
+			var childKIntable =  $('td:first', obj).next().children().val()			
+			var userCodeAB = $('td:first', obj).children().val().trim();		
+			var userCode = StoreInfo.getInfo(userCodeId).toUpperCase().trim();
+
+		if(abIntable == "A") { //eq()方法从第0个开始			
+			$('input[name="radio2"]').eq(0).prop("checked", "checked");			
+		}else {		
+			$('input[name="radio2"]').eq(1).prop("checked", "checked");			
+		}
+		if(childKIntable=="1"){
+			$('input[name="radio1"]').eq(0).prop("checked", "checked");	
+		}else if(childKIntable=="2"){
+			$('input[name="radio1"]').eq(1).prop("checked", "checked");	
+		}else if(childKIntable=="3"){
+			$('input[name="radio1"]').eq(2).prop("checked", "checked");	
+		}else {
+			$('input[name="radio1"]').eq(3).prop("checked", "checked");	
+		}
+		
+		if(userCode==userCodeAB){			
+			localStorage.setItem("childK", $('input[name="radio1"]:checked').val());
+			localStorage.setItem("AB", $('input[name="radio2"]:checked').val());
+			localStorage.setItem("hw", hw);				
+			var w = plus.webview.open("pandianluru.html", "pandianluru", {}, "slide-in-right");				
+		}else{
+			alert("当前记录不是本人录入，不能跳转！");
+		}
+		}	
+		
+		//添加AddNew自定义事件监听
+		window.addEventListener('loadTable', function() {
+			plus.webview.getWebviewById('huoweiliebiao').reload();
+		});
+			
+		//加载列表
+		function loadTable(obj) {
+			var url = StoreInfo.getInfo(urlPDAId) + "PanDian";
+			mui.ajax(url, {
+				data: {
+					storeCode: StoreInfo.getInfo(storeId),
+					userCode: StoreInfo.getInfo(userCodeId),
+					pDate: pandianDate,
+					method: "checkPDDate"
+				},
+				dataType: 'json',
+				type: 'POST',
+				success: function(data) {
+					if(data.ErrorType == 0) {
+						alert(data.ErrorMsg);
+					}
+					if(data.ErrorType == 1) {
+						
+						var _html = '';
+						_html += '<table class="table_warp " ><th>盘点单号</th>' +
+							'<th>货位号</th><th>AB录入</th><th>已点种数</th>';							      
+							for(var i = 0; i < data.InfoS.length; i++) {
+							
+							_html+= '<tr  onclick="getHw(this)">' +
+								'<td>' + data.InfoS[i].sheetCode + '<input type="hidden" value="'+data.InfoS[i].userCode+'"/></td>' +
+								'<td>' + data.InfoS[i].HW +'<input type="hidden" value="'+data.InfoS[i].BCHMD+'"/></td>' +
+								'<td>' + data.InfoS[i].AB+ '</td>' +								
+								'<td>' + data.InfoS[i].barCodeNum + '</td>'								
+							+'</tr>';
+						}						
+						_html += '</table>';
+						$("#rs").html(_html);
+
+					}
+				}
+			});
+		}
+		
+		function checkHW(){
+		var url = StoreInfo.getInfo(urlPDAId) + "PanDian";	
+		//alert($('input[name="radio2"]:checked').val());
+			mui.ajax(url, {
+				data: {
+					storeCode: StoreInfo.getInfo(storeId),
+					userCode: StoreInfo.getInfo(userCodeId),
+					pDate: pandianDate,
+					AB:$('input[name="radio2"]:checked').val(),
+					childK:$('input[name="radio1"]:checked').val(),
+					hw:$("#hw").val(),
+					method: "checkPDDateHW"
+				},
+				dataType: 'json',
+				type: 'POST',
+				success: function(data) {			
+					if(data.ErrorType==0){
+						alert(data.ErrorMsg);
+						return;
+					}else{
+						var w = plus.webview.open("pandianluru.html", "none", "none", "slide-in-right", "none", "none");
+					}			
+		}
+			});
+		}
+			
+	</script>
+
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+		<head>
+		<meta charset="UTF-8">
+		<title>订货单点货</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/superMarket.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="js/mui.js"></script>
+		<script type="text/javascript" src="js/commonPDA.js"></script>
+		<script type="text/javascript" src="js/mui.min.js"></script>
+		<script type="text/javascript" src="js/jquery.min.js"></script>
+	
+	</head>
+
+	<header class="mui-bar mui-bar-nav">
+		<a class="mui-icon mui-icon-back mui-pull-left mui-action-back"></a>
+		<a href="index.html" class="mui-icon mui-icon-home  mui-pull-right"></a>
+		<h1 class="mui-title">订货单点货</h1>
+	</header>
+	<body style="margin:60px 0 20px 0;">
+		<div class="mui-input-row mui-search">
+			<input id="barCode" type="search" class="mui-input-clear" placeholder="输入商品条码或商品编号">
+		</div>
+		<h5 class="mui-content-padded">单号：<span ></span></h5>
+		<h5 class="mui-content-padded">货位：</h5>
+		<div class="mui-card">
+
+			<div class="mui-input-row mui-radio">
+				<label>卖场</label>
+				<input value="1" name="radio1" type="radio" checked>
+			</div>
+			<div class="mui-input-row mui-radio">
+				<label>理货区</label>
+				<input value="2" name="radio1" type="radio">
+			</div>
+			<div class="mui-input-row mui-radio">
+				<label>仓库</label>
+				<input value="3" name="radio1" type="radio">
+			</div>
+			<div class="mui-input-row mui-radio">
+				<label>坏货区</label>
+				<input value="4" name="radio1" type="radio">
+			</div>
+		
+		</div>
+
+				<h5 class="mui-content-padded">基本信息</h5>
+			<div class="mui-card">
+				<div class="mui-input-row ">
+					<label>编码(条码)</label>
+					<input type="text" readonly id="goodsCode">
+				</div>
+				<div class="mui-input-row ">
+					<label>商品名称</label>
+					<input type="text" readonly id="goodsName">
+				</div>
+				<div class="mui-input-row ">
+					<label>规格</label>
+					<input type="text" readonly id="goodsSize">
+				</div>
+				<div class="mui-input-row ">
+					<label>含量</label>
+					<input type="text" readonly id="goodsWeight">
+				</div>
+				<div class="mui-input-row ">
+					<label>应点数量</label>
+					<input type="text" readonly id="goodsAmount">
+				</div>
+				<div class="mui-input-row ">
+					<label>生产日期</label>
+					<input type="text" id="goodsDate">
+				</div>
+				<div class="mui-input-row ">
+					<label>实点数</label>
+					<input type="text" id="goodsCount">
+				</div>
+			</div>	
+	</body>
+<script>
+		
+		
+	
+	 var orderNo = localStorage.getItem("orderNo");
+	 var sheetType = localStorage.getItem("sheetType");
+	 var orderNoReal = orderNo.replace(/\'/g,'');//把''全部替换成空
+ 	$('h5 span').text(orderNoReal);
+
+	$(document).ready(function() {
+				$("#barCode").focus();
+				$("#barCode").keydown(function(e) {
+					var curKey = e.which;
+					if(curKey == 13) {
+						search();
+					}
+				});
+			});
+
+			function search() {
+				var storeCode = StoreInfo.getInfo(storeId);
+				var userCode = StoreInfo.getInfo(userCodeId);
+				var barCode = $("#barCode").val();
+				var hw = $('input:radio:checked').val();
+				var url = "http://192.168.170.242:8080/SRV/ShipRreceive";//测试地址
+				//var url = "http://192.168.171.20:8080/SRV/ShipRreceive";//开发地址
+				
+				mui.ajax(url, {
+					data: {
+						bidbillno:orderNoReal,
+						userCode: userCode,
+						storeCode: storeCode,
+						barCode: barCode,
+						sheetType:sheetType,
+						method:"countSheet",
+						vFlag:1, //1是查询 2是跟新
+						hw:hw,
+						vNum:$("#goodsCount").val(),
+						pDate:$("#goodsDate").val()
+					},
+					dataType: 'json',
+					type: 'POST',
+					success: function(data) {
+						//alert(data);
+						if(data.ErrorType == 1) { //请求成功data.ErrorType == 1
+							alert(data.Infos);	
+						$.each(data.Infos, function(key, value) {
+						
+								$("#goodsCode").val(value.barCode+"("+value.bidbarcode+")");//商品编码barCode商品条码bidbarcode
+								$("#goodsName").val(value.gmcname);//商品名称gmcname
+								$("#goodsSize").val(value.badspec);//规格badspec
+								$("#goodsWeight").val(value.bidhl);//含量bidhl 
+								$("#goodsAmount").val(value.bidyssl);//应收数量
+								//$("#goodsDate").val(value.BIDSCRQ);//生产日期
+								//$("#goodsCount").val(value.bidsssl);//数量
+							});
+							$("#barCode").val('');
+						} else {
+							alert(data.ErrorMsg);
+							$("#barCode").val('');
+							$("#barCode").focus();
+						}
+					}
+				});
+			}
+	
+</script>
+
+</html>
+

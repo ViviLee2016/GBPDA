@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>货物清单资料</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/superMarket.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="js/mui.js"></script>
+		<script type="text/javascript" src="js/commonPDA.js"></script>
+		<script type="text/javascript" src="js/mui.min.js"></script>
+		<script type="text/javascript" src="js/jquery.min.js"></script>
+		<script type="text/javascript" src="js/Validform_v5.3.2_min.js"></script>
+	</head>
+	<header class="mui-bar mui-bar-nav">
+		<a class="mui-icon mui-icon-back mui-pull-left mui-action-back"></a>
+		<a href="index.html" class="mui-icon mui-icon-home  mui-pull-right"></a>
+		<h1 class="mui-title">货物清单资料</h1>
+	</header>
+	<body style="margin:60px 0 20px 0;">
+	<div id="rs" class="tableSpace"></div>
+	<div class="mui-button-row mui-content-padded">
+		<button class="mui-btn mui-btn-primary mui-btn-block" >确定</button>
+	</div>
+	</body>
+	<script>
+	if(window.plus) {
+				plusReady();
+				mui.init();
+			} else {
+				document.addEventListener("plusready", plusReady, false)
+			}
+
+			function plusReady() {
+				var ws = plus.webview.currentWebview();
+			}
+			
+//页面打开时自动加载查询列表	
+	mui.plusReady(function(){ 
+		searchReceiveGoods(); 
+		})
+ 
+ var orderNo = localStorage.getItem("orderNo");
+ //alert(localStorage.getItem("orderNo"));
+ 
+		function searchReceiveGoods() {
+			//var url = "http://192.168.170.242:8080/SRV/ShipRreceive";
+			//var url = "http://192.168.171.20:8080/SRV/ShipRreceive";	
+			var url = StoreInfo.getInfo(urlPDAId) + "ShipRreceive";
+			mui.ajax(url, {
+						data: {
+							storeCode: StoreInfo.getInfo(storeId),
+							userCode: StoreInfo.getInfo(userCodeId),
+							uuid: plusReady(),
+							sheetCode: orderNo,
+							sheetType: 1,
+							vFlag: 1,
+							method: "searchSheet",
+						},
+						dataType: 'json',
+						type: 'POST',
+						contentType:"application/x-www-form-urlencoded; charset=utf-8",
+						success: function(data) {
+							if(data.ErrorType == 0) {
+								alert(data.ErrorMsg);
+							}else {
+								if(data.Infos==null||data.Infos==''){
+									html_ = ' <td>该单号没有商品信息！</td>' ;
+								}else{
+										var html_ = ' <table class="table_warp">' +
+										' <th>序号</th><th>商品编码</th><th>商品名称</th><th>规格</th><th>订货数</th><th>实点数</th><th>货位</th><th>生产日期</th><th>验收单号</th> '
+									for(var i = 0; i < data.Infos.length; i++) {
+										html_ += '<tr>' +
+											'<td>' + data.Infos[i].bidrowno + '</td>' //序号
+											+
+											'<td>' + data.Infos[i].barCode + '</td>' //商品编码
+											+
+											'<td>' + data.Infos[i].gmcname + '</td>' //商品名称
+											+
+											'<td>' + data.Infos[i].badspec + '</td>' //规格
+											+
+											'<td>' + data.Infos[i].bidyssl  + '</td>' //订货数
+											+
+											'<td>' + data.Infos[i].bidsssl + '</td>' //实点数
+											+
+											'<td>' + data.Infos[i].bidshelfcode + '</td>' //货位
+											+
+											'<td>' + data.Infos[i].BIDSCRQ  + '</td>' //生产日期
+											+
+											'<td>' + data.Infos[i].sheetCode + '</td>' //验收单号
+											+
+											'</tr>'
+									}
+								}
+								
+									$("#rs").html(html_);
+								}	
+													
+							}
+											
+			});
+		}
+
+	</script>
+</html>

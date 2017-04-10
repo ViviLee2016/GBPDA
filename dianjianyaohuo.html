@@ -1,0 +1,348 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="css/mui.css" rel="stylesheet" type="text/css" />
+		<link href="css/common.css" rel="stylesheet" type="text/css" />
+		<link href="css/mui.min.css" rel="stylesheet" type="text/css" />
+		<link href="css/superMarket.css" rel="stylesheet" type="text/css" />
+		<link href="css/mobiscroll_date.css" rel="stylesheet" type="text/css" />
+		<link href="css/mobiscroll.css" rel="stylesheet" type="text/css" />
+		<link rel="stylesheet" href="css/comStyle.css" />
+		<script type="text/javascript" src="js/mui.js"></script>
+		<script src="js/jquery.min.js"></script>
+		<script src="js/mobiscroll_date.js" charset="gb2312"></script>
+		<script src="js/mobiscroll.js"></script>
+		<script src="js/commonPDA.js"></script>
+	</head>
+	<header class="mui-bar mui-bar-nav">
+		<a href="javascript:history.go(-1)" class="mui-icon mui-icon-back mui-pull-left "></a>
+		<a href="index.html" class="mui-icon mui-icon-home  mui-pull-right"></a>
+		<h1 class="mui-title">店间要货</h1>
+	</header>
+
+	<body style="margin:60px 0 20px 0;">
+		<div class="input-row div_row">
+			<label>调出门店:</label>
+			<select class="select_xiala">
+				<option value="" disabled selected>--请选择门店--</option>
+				<option value="门店1">门店1</option>
+				<option value="门店2">门店2</option>
+			</select>
+		</div>
+		<div class="mui-input-row mui-search">
+			<input id="barCode" type="search" class="mui-input-clear" placeholder="输入商品条码或商品编号">
+		</div>
+		<h5 class="mui-content-padded">商品信息：</h5>
+		<input type="hidden" id="gmfstatus" />
+		<input type="hidden" id="rgmfid" />
+		<input type="hidden" id="rggfc" />
+		<input type="hidden" id="rgcatid" />
+		<input type="hidden" id="rgsupid" />
+		<input type="hidden" id="rgwmid" />
+		<input type="hidden" id="rghtbh" />
+		<input type="hidden" id="rguid" />
+		<input type="hidden" id="rgunit" />
+		<div class="mui-card" id="goodsInfo">
+			<div class="input-row">
+				<label>商品编码(条码):</label>
+				<span id="idcode"></span>
+				<input type="hidden" id="rggdid" />
+				<input type="hidden" id="rgbarcode" />
+			</div>
+			<div class="input-row">
+				<label>商品名称:</label>
+				<span id="rggdname"></span>
+			</div>
+			<div class="input-row">
+				<label>门店库存:
+				    <span id="rgcurstock"></span>
+				</label>
+				<label class="label_l">规格:
+				    <span id="rggdspec"></span>
+				</label>
+			</div>
+			<div class="input-row">
+				<label>在途:
+				    <span id="rgallotnum"></span>
+				</label>
+				<label class="label_l">含量:
+				    <span id="rgbzhl"></span>
+				</label>
+			</div>
+			<div class="mui-input-row">
+				<label>要货数量:</label>
+				<input id="rgrnum" onkeyup="fillNumOnly(this)" type="text" placeholder="请输入要货数量">
+			</div>
+		</div>
+		<h5 class="mui-content-padded">要货记录：(共<span id="seed">0</span>种 共<span id="unit">0</span>件)</h5>
+		<div id="rs" class="table_Space">
+			<table class="table_warp noshow AutoNoNewline">
+				<th>商品编码</th>
+				<th>条码</th>
+				<th>商品名称</th>
+				<th>规格</th>
+				<th>总数量</th>
+				<th>操作</th>
+			</table>
+		</div>
+		<div class="mui-button-row mui-content-padded">
+			<button disabled="true" class="mui-btn button_baocun mui-btn-block" onclick="saveGoodsInfo()">保存</button>
+		</div>
+	</body>
+    <script>
+		//文本框只能输入正整数
+		function fillNumOnly(obj) {
+			var str = obj.value;
+			if($.trim(str) == "" || $.trim(str.substr(0, 1)) == 0) {
+				obj.value = "";
+				return;
+			}
+			if(/[^0-9]/g.test(str)) {
+				obj.value = "";
+			}
+		}
+		//enter事件
+		$(document).ready(function() {
+			$("#barCode").focus();
+			$("#barCode").keydown(function(e) {
+				var curKey = e.which;
+				if(curKey == 13) {
+					if(""==$("select").val()||null==$("select").val()){
+                        mui.alert("请选择调出门店");
+					}else{
+					    getGoodsInfo();
+					    $("#barCode").val("");
+					}
+				}
+			});
+			$("#rgrnum").keydown(function(e) {
+				var curKey = e.which;
+				var rggdid = $("#rggdid").val();
+				var num = $("#rgrnum").val();
+				var gmfstatus = $("#gmfstatus").val();
+				var unit = 0;
+				if(curKey == 13 && num != null && "" != num && rggdid != null && "" != rggdid) {
+					var flag = true;
+					if($(".table_warp tr").length > 1) {
+						$(".rggDid").each(function() {
+							if(rggdid == $(this).text()) {
+								mui.alert("要货列表已存在该商品");
+								flag = false;
+							}
+						});
+					}
+					if(flag) {
+						if(gmfstatus == 'Y' || gmfstatus == 'S' || gmfstatus == 'y' || gmfstatus == 's') {
+							$(".table_warp").removeClass("noshow");
+							var html_ = '<tr><td class="rggDid">' + $("#rggdid").val() + '</td>' +
+								'<td class="rgbarCode">' + $("#rgbarcode").val() + '</td>' +
+								'<td class="rggdName">' + $("#rggdname").text() + '</td>' +
+								'<td class="rggdSpec">' + $("#rggdspec").text() + '</td>' +
+								'<td class="rgrNum">' + $("#rgrnum").val() + '</td>' +
+								'<td><span class="button_xiu" onclick="updateNum(this)">修改</span>' +
+								'<span class="button_shan" onclick="deleteRow(this)">删除</span></td>'+
+								'<td class="rgbzhl noshow">' + $("#rgbzhl").text() + '</td>' +
+								'<td class="rgallotnum noshow">' + $("#rgallotnum").text() + '</td>' +
+								'<td class="rgcurstock noshow">' + $("#rgcurstock").text() + '</td>' +
+								'<td class="gmfstatus noshow">' + $("#gmfstatus").val() + '</td>' +
+								'<td class="rgmfid noshow">' + $("#rgmfid").val() + '</td>' +
+								'<td class="rggfc noshow">' + $("#rggfc").val() + '</td>' +
+								'<td class="rgcatid noshow">' + $("#rgcatid").val() + '</td>' +
+								'<td class="rgsupid noshow">' + $("#rgsupid").val() + '</td>' +
+								'<td class="rgwmid noshow">' + $("#rgwmid").val() + '</td>' +
+								'<td class="rghtbh noshow">' + $("#rghtbh").val() + '</td>' +
+								'<td class="rguid noshow">' + $("#rguid").val() + '</td>' +
+								'<td class="rgunit noshow">' + $("#rgunit").val() + '</td>' +
+								'</tr></table>'
+							$(".table_warp").append(html_);
+							//要货列表种数、件数
+							$("#seed").text($(".rggDid").length);
+							$(".rgrNum").each(function() {
+								unit = unit + parseInt($(this).text());
+							});
+							$("#unit").text(unit);
+							//清空商品信息列表
+							$("#idcode").text("");
+							$("#rggdname").text("");
+							$("#rgcurstock").text("");
+							$("#rggdspec").text("");
+							$("#rgallotnum").text("");
+							$("#rgbzhl").text("");
+							$("#rgrnum").val("");
+							//禁用调出门店下拉框
+							$(".select_xiala").attr("disabled", true);
+							$(".select_xiala").css("background-color","#DDDDDD");
+							//解除保存按钮的禁用
+							$(".mui-btn").attr("disabled", false);
+							$(".mui-btn").removeClass("button_baocun").addClass("mui-btn-primary");
+						} else {
+							mui.alert("该商品为非正常销售状态");
+						}
+					}
+				}
+			});
+		});
+		//修改总数量
+		function updateNum(obj) {
+			var btnArray = ['确认', '取消'];
+			mui.prompt('请输入数量:', $(obj).parent().prev().text(), '要货数量修改', btnArray,
+				function(e) {
+					if(e.index == 0) {
+						var str = e.value;
+						var flag = true;
+						if($.trim(str) == "" || $.trim(str.substr(0, 1)) == 0) {
+							flag = false;
+							mui.alert("修改失败");
+							return;
+						}
+						if(/[^0-9]/g.test(str)) {
+							flag = false;
+							mui.alert("修改失败");
+							return;
+						}
+						if(flag) {
+							$(obj).parent().prev().text(e.value);
+							//要货列表件数
+							var unit = 0;
+							$(".rgrNum").each(function() {
+								unit = unit + parseInt($(this).text());
+							});
+							$("#unit").text(unit);
+						}
+					}
+				});
+		}
+		//删除
+		function deleteRow(obj) {
+			var btnArray = ['确定', '取消'];
+			mui.confirm('确定删除该条记录？', '删除要货记录', btnArray, function(e) {
+				if(e.index == 0) {
+					var tr = obj.parentNode.parentNode;
+					var tbody = tr.parentNode;
+					tbody.removeChild(tr);
+					//要货列表种数、件数
+					var unit = 0;
+					$("#seed").text($(".rggDid").length);
+					$(".rgrNum").each(function() {
+						unit = unit + parseInt($(this).text());
+					});
+					$("#unit").text(unit);
+					//只剩行首时隐藏表格  
+					if(tbody.rows.length == 1) {
+						$(".table_warp").addClass("noshow");
+						//解除调出门店的禁用
+						$(".select_xiala").attr("disabled", false);
+						$(".select_xiala").css("background-color","");
+						//保存按钮禁用
+						$(".mui-btn").attr("disabled", true);
+						$(".mui-btn").removeClass("mui-btn-primary").addClass("button_baocun");
+					}
+				}
+			});
+		}
+		//查询商品信息
+		function getGoodsInfo() {
+			mui.ajax({
+				url: "http://192.168.171.21:8080/SRV/LargeWarehouseGetGoods",
+				data: {
+					method: "getGoodsInfo",
+					GmId: $('#barCode').val(), //商品编码2615196
+					storeId: StoreInfo.getInfo("storeId") + "", //门店Id
+					//GmId: 2600012, //商品编码2615196
+					//storeId: "0032", //门店Id
+				},
+				dataType: 'json',
+				type: 'POST',
+				success: function(data) {
+					if(data.ErrorType == 0) {
+						mui.alert(data.ErrorMsg);
+					} else if(data.ErrorType == 2) {
+						mui.alert(data.ErrorMsg);
+					} else {
+						$("#rggdid").val(data.Info.rggdid);
+						$("#rgbarcode").val(data.Info.rgbarcode);
+						$("#rggdname").text(data.Info.rggdname);
+						$("#rggdspec").text(data.Info.rggdspec);
+						$("#rgbzhl").text(data.Info.rgbzhl);
+						$("#rgallotnum").text(data.Info.rgallotnum);
+						$("#rgcurstock").text(data.Info.rgcurstock);
+						$("#gmfstatus").val(data.Info.gmfstatus);
+						$("#rgmfid").val(data.Info.rgmfid);
+						$("#rggfc").val(data.Info.rggfc);
+						$("#rgcatid").val(data.Info.rgcatid);
+						$("#rgsupid").val(data.Info.rgsupid);
+						$("#rgwmid").val(data.Info.rgwmid);
+						$("#rghtbh").val(data.Info.rghtbh);
+						$("#rguid").val(data.Info.rguid);
+						$("#rgunit").val(data.Info.rgunit);
+						$("#idcode").text(data.Info.rggdid + "(" + data.Info.rgbarcode + ")");
+					}
+				},
+				error: function() {
+					mui.alert("请求中间层失败");
+				}
+			});
+		}
+
+		function saveGoodsInfo() {
+			if($(".table_warp tr").length > 1) {
+				var goodsInfo = new Array();
+				$(".table_warp tr:gt(0)").each(function() {
+					goodsInfo.push({
+						"rggDid": $(this).find(".rggDid").text(),
+						"rgbarCode": $(this).find(".rgbarCode").text(),
+						"rggdName": $(this).find(".rggdName").text(),
+						"rggdSpec": $(this).find(".rggdSpec").text(),
+						"rgbzhl": $(this).find(".rgbzhl").text(),
+						"rgallotnum": $(this).find(".rgallotnum").text(),
+						"rgcurstock": $(this).find(".rgcurstock").text(),
+						"gmfstatus": $(this).find(".gmfstatus").text(),
+						"rgmfid": $(this).find(".rgmfid").text(),
+						"rggfc": $(this).find(".rggfc").text(),
+						"rgcatid": $(this).find(".rgcatid").text(),
+						"rgsupid": $(this).find(".rgsupid").text(),
+						"rgwmid": $(this).find(".rgwmid").text(),
+						"rghtbh": $(this).find(".rghtbh").text(),
+						"rguid": $(this).find(".rguid").text(),
+						"rgunit": $(this).find(".rgunit").text(),
+						"rgrNum": $(this).find(".rgrNum").text(),
+						//"rlmkt":StoreInfo.getInfo("storeId")+"",
+						"rlmkt":"0032",
+					});
+				})
+				var data = JSON.stringify(goodsInfo).replace(new RegExp("},", 'gm'), '};').replace("[", "").replace("]", "");
+				mui.ajax({
+					url: "http://192.168.171.21:8080/SRV/LargeWarehouseSaveGoods",
+					data: {
+						method: "saveGoodsInfo",
+						goodsInfo: encodeURI(data, "utf-8")
+					},
+					dataType: "json",
+					Type: "POST",
+					async: false,
+					success: function(data) {
+						if(data.flg==1) {
+							var btnArray = ['继续要货', '返回首页'];
+							mui.confirm('本次要货已完成', '提示', btnArray, function(e) {
+								if(e.index == 0) {
+									location.reload();//刷新当前页面
+								}else if(e.index == 1){
+									location.href = "index.html";
+								}
+							});
+						}else{
+							mui.alert(data.Message);
+						}
+					},
+					error: function() {
+						mui.alert("保存数据异常");
+					}
+				});
+			}
+		}
+	</script>
+
+</html>

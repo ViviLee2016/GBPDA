@@ -1,0 +1,183 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="css/mui.css" rel="stylesheet" type="text/css" />
+		<link href="css/common.css" rel="stylesheet" type="text/css" />
+		<link href="css/mui.min.css" rel="stylesheet" type="text /css" />
+		<link href="css/superMarket.css" rel="stylesheet" type="text /css" />
+		<link href="css/comStyle.css" rel="stylesheet" type="text /css" />
+		<script src="js/jquery.min.js"></script>
+		<script src="js/mui.js"></script>
+		<script src="js/commonPDA.js"></script>
+		<script src="js/jquery.autocomplete.js"></script>
+		<script type="text/javascript">
+			if(window.plus) {
+				plusReady();
+				mui.init();
+			} else {
+				document.addEventListener("plusready", plusReady, false)
+			}
+
+			function plusReady() {
+				var ws = plus.webview.currentWebview();
+			}
+
+
+			$(document).ready(function() {
+				$("#inputCode").focus();
+				$("#inputCode").keydown(function(e) {
+					var curKey = e.which;
+					if(curKey == 13) {
+						search();
+					}
+				});
+			});
+
+			function search() {
+				var storeCode = StoreInfo.getInfo(storeId);
+				var userCode = StoreInfo.getInfo(userCodeId);
+				var barCode = $("#inputCode").val();
+				var url = StoreInfo.getInfo(urlPDAId) + "GetGoodsInfo";
+				//alert(url);
+				mui.ajax(url, {
+					data: {
+						userCode: userCode,
+						storeCode: storeCode,
+						barCode: barCode
+					},
+					dataType: 'json',
+					type: 'POST',
+					contentType:"application/x-www-form-urlencoded; charset=utf-8",
+					success: function(data) {
+						if(data.ErrorType == 1) { //请求成功ErrorType==1
+							var kcTotal = 0;
+							var html_ = '<table class="table_warp"><th>编号</th><th>库存</th><th>供应商</th><th>仓位</th>';
+							for(var i = 0; i < data.infoS.length; i++) {
+								html_ += '<tr>' +
+									'<td>' + (i + 1) + '</td>' +
+									'<td>' + data.infoS[i].PQTY + '</td>' +
+									'<td>' + data.infoS[i].GYS + '</td>' ;
+									
+									if(data.infoS[i].GSTMD=="1"){
+										html_ += '<td>卖场</td>' ;
+									}
+									if(data.infoS[i].GSTMD=="2"){
+										html_ += '<td>理货区</td>' ;
+									}
+									if(data.infoS[i].GSTMD=="3"){
+										html_ += '<td>仓库</td>' ;
+									}								
+									if(data.infoS[i].GSTMD=="4"){
+										html_ += '<td>坏货区</td>';
+									}
+									
+									html_ += '</tr>';
+								
+								kcTotal += data.infoS[i].PQTY;
+								
+								$('#kcTotal').html("库存合计：" + kcTotal);
+							}
+
+							$.each(data.infoS, function(key, value) {
+								$("#goodsCode").val(barCode);
+								$("#goodsName").text(value.NAME);
+								$("#goodsSize").val(value.SPEC);
+								$("#goodsPrice").val(value.SJ);
+								$("#saleNum").val(value.BILLNO);
+								$("#saleStart").text(value.PAKBARCODE);
+								if(value.FSECTION=="|"){
+									$("#salePrice").val('')
+								}else{
+									$("#salePrice").val(value.FSECTION);
+								}																		
+								$("#inputCode").focus();
+
+							});
+							$('#rs').html(html_);
+							$("#inputCode").val('');
+						} else {
+							alert("抱歉，找不到该商品信息！");
+							$("#inputCode").val('');
+							$("#inputCode").focus();
+						}
+					},
+					error: function(xhr, type, errorThrown) {
+						//异常处理；
+						var barCode = $("#inputCode").val('');
+						console.log("xhr" + xhr);
+						console.log("type" + type);
+						console.log("errorThrown:" + errorThrown);
+					}
+				});
+			}
+		</script>
+
+	</head>
+	<header class="mui-bar mui-bar-nav">
+		<a class="mui-icon mui-icon-back mui-pull-left mui-action-back"></a>
+		<a href="index.html" class="mui-icon mui-icon-home  mui-pull-right"></a>
+		<h1 class="mui-title">商品查询</h1>
+	</header>
+
+	<body class="floatbox">
+		<div class="mui-content">
+			<button style="display: none;" onclick="search()">查询</button>
+			<h5 class="mui-content-padded">商品条形码</h5>
+			<div class="mui-card">
+
+				<div class="mui-input-row ">
+					<label>条形码</label>
+					<input type="text" placeholder="请输入条形码" id="inputCode" class="mui-input-clear">
+				</div>
+			</div>
+			<h5 class="mui-content-padded">基本信息</h5>
+			<div class="mui-card">
+				<div class="mui-input-row ">
+					<label>编码(条码)</label>
+					<input type="text" readonly id="goodsCode">
+				</div>
+				<div class="input-row ">
+					<label class="label_padding">商品名称</label>
+					<span id="goodsName"></span>					
+				</div>
+				<div class="mui-input-row ">
+					<label>规格</label>
+					<input type="text" readonly id="goodsSize">
+				</div>
+
+				<div class="mui-input-row ">
+					<label>零售价</label>
+					<input type="text" readonly id="goodsPrice">
+				</div>
+
+			</div>
+			<h5 class="mui-content-padded">促销信息</h5>
+			<div class="mui-card">
+				<div class="mui-input-row ">
+					<label>促销单号</label>
+					<input type="text" readonly id="saleNum">
+				</div>
+				<div class="input-row ">
+					<label style="word-break: break-all; ">起始时间</label>
+					<span id="saleStart"></span>
+				</div>
+				<div class="mui-input-row ">
+					<label>促销售价</label>
+					<input type="text" readonly id="salePrice">
+				</div>
+			</div>
+			<h5 class="mui-content-padded">库存信息</h5>
+			
+			<div id="rs" class="mui-content-padded"></div>
+             <div id="kcTotal" class="mui-content-padded"></div>
+			<!-- off-canvas backdrop -->
+			<div class="mui-off-canvas-backdrop"></div>
+		</div>
+		</div>
+		</div>
+	</body>
+
+</html>

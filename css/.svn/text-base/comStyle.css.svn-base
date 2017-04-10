@@ -1,0 +1,61 @@
+.input-row{
+	font-family: 'Helvetica Neue',Helvetica,sans-serif;
+	line-height: normal;
+	float:left;
+	width:100%;
+    padding: 10px 0px 10px 15px; 
+}
+.button_xiu{
+	color: blue;
+}
+.button_shan{
+	color: red;
+	margin-left: 10px;
+}
+.noshow{
+	display: none;
+}
+.label_l{
+	margin-left: 10%;
+}
+.table_Space{
+	overflow:auto;
+	width: 98%;
+}
+.AutoNoNewline 
+{ 
+  Word-break:keep-all;
+  width: 850px;
+  overflow: auto;
+}
+.button_baocun{
+	color: #fff;
+	border: 1px solid rgba(146, 214, 243, 1);
+	background-color: rgba(146, 214, 243, 1);
+}
+.mui-popover {
+	height: 100px;
+	text-align:center;
+}
+.select_xiala{
+	width:73%;
+	margin-top: 0px;
+	height: 26px;
+	padding: 0px;
+	margin-bottom: 0px;
+	font-size:18px;
+	margin-left: 5px;
+}
+.div_row{
+	height: 35px;
+	margin-bottom: 10px;
+	margin-top: 10px;
+	padding: 0px;
+	font-size:18px;
+	margin-left: 5px;
+}
+
+.label_padding{
+	word-break: break-all; 
+	padding-right: 10px;
+}

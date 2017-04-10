@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="css/mui.css" rel="stylesheet" type="text/css" />
+		<link href="css/common.css" rel="stylesheet" type="text/css" />
+		<link href="css/mui.min.css" rel="stylesheet" type="text/css" />
+		<link href="css/superMarket.css" rel="stylesheet" type="text/css" />
+		<link href="css/mobiscroll_date.css" rel="stylesheet" type="text/css" />
+		<link href="css/mobiscroll.css" rel="stylesheet" type="text/css" />
+		<link href="layer/skin/default/layer.css" rel="stylesheet" type="text/css" />
+		<link href="css/comStyle.css" rel="stylesheet" type="text /css" />
+		<link href="layer/skin/yourskin/style.css" rel="stylesheet" type="text /css" />
+		<script type="text/javascript" src="js/mui.js"></script>
+		<script src="js/jquery.min.js"></script>
+		<script src="js/mobiscroll_date.js" charset="gb2312"></script>
+		<script src="js/mobiscroll.js"></script>
+		<script src="js/commonPDA.js"></script>
+		<!--<script src="js/refresh.js"></script>-->
+		<script type="text/javascript" src="layer/layer.js"></script>
+		<script type="text/javascript" src="js/pickDate.js"></script>
+
+	</head>
+
+<style>
+	.mui-icon-search:active{
+		color: #009CDA;
+	}
+</style>
+
+	<header class="mui-bar mui-bar-nav">
+		<a class="mui-icon mui-icon-back mui-pull-left mui-action-back"></a>
+		<a href="index.html"  class="mui-icon mui-icon-home  mui-pull-right"></a>
+		<h1 class="mui-title">制退单</h1>
+	</header>
+
+	<body class="body_contant">
+		<h5 class="mui-content-padded">退货单类型：</h5>
+		<div class="mui-row mui-card">
+			<div class="mui-col-xs-4 mui-col-xs-12">
+				<div class="mui-input-row mui-radio ">
+					<label>配退单</label>
+					<input value="1" name="radio1" type="radio" checked>
+				</div>
+			</div>
+			<div class="mui-col-xs-4 mui-col-xs-12">
+				<div class="mui-input-row mui-radio ">
+					<label>退厂审批单</label>
+					<input value="2" name="radio1" type="radio">
+				</div>
+			</div>
+			<div class="mui-col-xs-4 mui-col-xs-12">
+				<div class="mui-input-row mui-radio ">
+					<label>调拨单</label>
+					<input value="3" name="radio1" type="radio">
+				</div>
+			</div>
+		</div>
+		<div class="mui-row mui-card">
+			<div class="mui-input-row ">
+				<section id="form">
+					<label>制单日期</label>
+					<input id="pickDate" type="text" readonly placeholder="请选择制单日期" />
+				</section>
+			</div>
+			
+			<div class="mui-col-xs-10 mui-col-xs-12">
+				<div class="mui-input-row " id="selectUserOP">
+				<label>制单人</label>
+				<select id="userOP"></select>				
+			</div>
+			</div>
+			<div class="mui-col-xs-2 mui-col-xs-12">
+				<span class="mui-icon mui-icon-search" onclick="loadTable()"></span>
+			</div>
+		</div>
+	<!--	<div class="mui-button-row mui-content-padded">
+			<button class="mui-btn mui-btn-primary mui-btn-block" onclick="loadTable()">查询</button>
+		</div>-->
+		<div class="mui-button-row mui-content-padded">
+			<button class="mui-btn mui-btn-primary mui-btn-block" onclick="addBtn()">新增</button>
+		</div>
+
+		<div id="rs" class="table_Space"></div>
+	</body>
+	<script type="text/javascript">
+		mui.plusReady(function() {
+			loadTable();
+		})
+
+		//enter事件,从排面输入定位焦点到货量输入
+		$(document).ready(function() {
+			$("#goodsRow").keydown(function(e) {
+				var curKey = e.which;
+				if(curKey == 13) {
+
+				}
+			});
+		});
+
+ function addBtn(){
+    localStorage.setItem("tableFlg",$('input:radio:checked').val());
+    localStorage.setItem("userOP",$('#userOP').val());
+    if($('#userOP').val()==null ||$('#userOP').val()== ''){
+    	alert('新增退单前，请选择制单人！');
+    	return;
+    }else{
+    	var w =plus.webview.open("makePeituidan.html","makePeituidan",{},"slide-in-right");
+    }
+ 	
+ }
+ 
+   	document.getElementById('selectUserOP').addEventListener('tap', function() {
+			searchOPBtn();
+			});
+		//查询
+		function searchOPBtn() {
+			var url = StoreInfo.getInfo(urlPDAId) + "ShipReturn";
+			var data = {
+				storeCode: StoreInfo.getInfo(storeId),
+				userCode: StoreInfo.getInfo(userCodeId),
+				method: "getOPUser",
+				tableFlg: $('input:radio:checked').val(),
+			};
+			if($('#pickDate').val() != '') {
+				data.pDate = $('#pickDate').val();
+			}
+			if($('#userOP').val() != '') {
+				data.userOP = $('#userOP').val();
+			}
+			mui.ajax(url, {
+				data: data,
+				dataType: 'json',
+				type: 'POST',
+				contentType: "application/x-www-form-urlencoded; charset=utf-8",
+				success: function(data) {
+					if(data.ErrorType == 0) {
+						alert(data.ErrorMsg);
+					}
+					if(data.ErrorType == 1) {
+					var output = [];
+						$.each(data.InfoS, function(key, value) {
+							output.push('<option value="' + value.userOP + '">' + value.userOP + '/' + value.OANAME + '</option>');
+						});
+						$("#userOP").html(output.join(''));
+						} 
+				}				
+			});
+		}
+
+
+
+		function loadTable(obj) {
+			var url = StoreInfo.getInfo(urlPDAId) + "ShipReturn";
+			var data = {
+				storeCode: StoreInfo.getInfo(storeId),
+				userCode: StoreInfo.getInfo(userCodeId),
+				method: "initHeadList",
+				tableFlg: $('input:radio:checked').val(),
+			};
+			if($('#pickDate').val().trim() != '') {
+				data.pDate = $('#pickDate').val();
+			}
+			if($('#userOP').val()!= '') {
+				data.userOP = $('#userOP').val();
+			}
+			mui.ajax(url, {
+				data: data,
+				dataType: 'json',
+				type: 'POST',
+				contentType: "application/x-www-form-urlencoded; charset=utf-8",
+				success: function(data) {
+					if(data.ErrorType == 0) {
+						alert(data.ErrorMsg);
+					}
+					if(data.ErrorType == 1) {
+						var html_ = '<table class="table_warp"><th>单号</th><th>状态</th>';
+						for(var i = 0; i < data.InfoS.length; i++) {
+							html_ += '<tr onclick="gotoDetil(this)">' +
+								'<td>' + data.InfoS[i].sheetCode + '</td>' +
+								'<td>' + data.InfoS[i].strFlg + '</td>';
+							html_ += '</tr>';
+						} +
+						'</table>';
+						$("#rs").html(html_);
+					}
+				}
+			});
+		}
+		
+		function gotoDetil(obj){
+			var sCIntable = $('td:first', obj).text();
+			localStorage.setItem("sCIntable",sCIntable);
+			var w  = plus.webview.open("huoweiliebiao.html","huoweiliebiao",{},"slide-in-right");			
+		}
+	</script>
+
+</html>

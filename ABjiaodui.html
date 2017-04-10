@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="css/mui.css" rel="stylesheet" type="text/css" />
+		<link href="css/common.css" rel="stylesheet" type="text/css" />
+		<link href="css/mui.min.css" rel="stylesheet" type="text/css" />
+		<link href="css/superMarket.css" rel="stylesheet" type="text/css" />
+		<link href="css/mobiscroll_date.css" rel="stylesheet" type="text/css" />
+		<link href="css/mobiscroll.css" rel="stylesheet" type="text/css" />
+		<link href="css/layer.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="js/mui.js"></script>
+		<script src="js/jquery.min.js"></script>
+		<script src="js/mobiscroll_date.js" charset="gb2312"></script>
+		<script src="js/mobiscroll.js"></script>
+		<script src="js/commonPDA.js"></script>
+
+	</head>
+	<header class="mui-bar mui-bar-nav">
+		<a class="mui-icon mui-icon-back mui-pull-left mui-action-back"></a>
+		<a href="index.html" class="mui-icon mui-icon-home  mui-pull-right"></a>
+		<h1 class="mui-title">货位差异清单</h1>
+	</header>
+
+	<body style="margin:60px 0 20px 0;">
+
+		<div id="rs"></div>
+		<div class="mui-button-row mui-content-padded">
+			<button id="preCheck" class="mui-btn mui-btn-primary mui-btn-block" onclick="preCheck()">预审</button>
+		</div>
+	</body>
+	<script>
+		if(window.plus) {
+			plusReady();
+			mui.init();
+		} else {
+			document.addEventListener("plusready", plusReady, false)
+		}
+
+		function plusReady() {
+			var ws = plus.webview.currentWebview();
+		}
+		mui.init({
+			beforeback: function() {
+				//获得你要前往页面的webview id
+				var Scanner = plus.webview.getWebviewById('huoweiliebiao');
+				//触发前往页面的自定义事件（例：AddNew）,从而进行数据刷新
+				mui.fire(Scanner, 'loadTable');
+				//返回true，继续页面关闭逻辑
+				return true;
+			}
+		});
+
+		var pandianDate = localStorage.getItem("pandianDate");
+		//var url = "http://192.168.170.242:8080/SRV/PanDian";//测试地址
+		//var url = "http://192.168.171.20:8080/SRV/PanDian";//开发地址
+		//var url = StoreInfo.getInfo(urlPDAId)+ "PanDian";
+		mui.plusReady(function() {
+			differentList();
+		});
+
+	
+
+		//加载货位清单列表
+		function differentList() {
+			var url = StoreInfo.getInfo(urlPDAId) + "PanDian";
+			mui.ajax(url, {
+				data: {
+					method: "checkAB",
+					pDate: pandianDate
+						// pDate:"2009-12-01"
+				},
+				dataType: 'json',
+				type: 'POST',
+				success: function(data) {
+					if(data.ErrorType == 0) {
+						alert(data.ErrorMsg);
+					}
+					if(data.ErrorType == 1) {
+						var html_ = '<table id="tb" class="table_warp"><th>货位</th><th>差异条数</th><th>查看明细</th>';
+						for(var i = 0; i < data.InfoS.length; i++) {
+							html_ += '<tr>' +
+								'<td>' + data.InfoS[i].HW + '</td>' +
+								'<td>' + data.InfoS[i].dif + '</td>' +
+								'<td><a onclick="goDetail(this)">查看明细</a></td>';
+							html_ += '</tr>';
+						} +
+						'</table>';
+						$("#rs").html(html_);
+						//盘点页面是否存在明细差异，有的话不可点击预审按钮
+						if($("#tb").length > 0) {
+							$('#preCheck').attr('disabled', true);
+						} else {
+							$('#preCheck').attr('disabled', false);
+						}
+					}
+				}
+			});
+		}
+		//查看货位差异清单明细
+		function goDetail(obj) {
+			localStorage.setItem("difHw", $(obj).parent().prev().prev().text());
+			var w = plus.webview.open("huoweichayi.html", "none", "none", "slide-in-right", "none", "none");
+		}
+
+
+
+		//点击预审
+		function preCheck() {
+			
+			var url = StoreInfo.getInfo(urlPDAId) + "PanDian";
+			mui.ajax(url, {
+				data: {
+					method: "reCheck",
+					pDate: pandianDate,
+					userCode: StoreInfo.getInfo(userCodeId)
+				},
+				dataType: "json",
+				type: "POST",
+				success: function(data) {
+					if(data.ErrorType == 0) {
+						alert(data.ErrorMsg);
+					} else {
+						alert(data.ErrorMsg);
+					}
+				}
+			})
+		}
+	</script>
+
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>首页</title>
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" href="css/comStyle.css" />
+		<link rel="stylesheet" href="res/icon/css/font-awesome.css" />
+		<link rel="stylesheet" href="css/superMarket.css"  />
+ 	</head>
+	<header class="mui-bar mui-bar-nav">
+		<h1 id="navTitle" class="mui-title">首页</h1>
+	</header>
+
+	<body>
+		<!--弹出要货菜单-->
+		<div class="mui-popover">
+			<div class="mui-scroll-wrapper">
+				<div class="mui-scroll">
+					<ul class="mui-table-view">
+						<li class="mui-table-view-cell">
+							<a href="dacangyaohuo.html">大仓要货</a>
+						</li>
+						<li class="mui-table-view-cell">
+							<a href="dianjianyaohuo.html">店间要货</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="mui-content">
+			<ul class="mui-table-view mui-grid-view mui-grid-9 ">
+				<li id="getGoods" class="mui-table-view-cell mui-media mui-col-xs-4 col">
+					<a class="col" onclick="getGoods()">
+						<span class="fa fa-hand-paper-o fa-icon" id="icon1"></span>
+						<div class="mui-media-body col">要货</div>
+					</a>
+				</li>
+				<li class="mui-table-view-cell mui-media mui-col-xs-4">
+					<a href="receiveGoodsList.html">
+						<span class="fa fa-truck fa-icon"></span>
+						<div class="mui-media-body">收货</div>
+					</a>
+				</li>
+			<!--	<li class="mui-table-view-cell mui-media mui-col-xs-4">
+					<a href="#">
+						<span class="mui-icon mui-icon-chatbubble"></span>
+						<div class="mui-media-body">退货</div>
+					</a>
+				</li>-->
+				<li class="mui-table-view-cell mui-media mui-col-xs-4">
+					<a href="zhituidan.html">
+						<span class="fa fa-file-text-o fa-icon"></span>
+						<div class="mui-media-body">制退单</div>
+					</a>
+				</li>
+				<li class="mui-table-view-cell mui-media mui-col-xs-4">
+					<a id="huojia">
+						<span class="fa fa-paperclip fa-icon"></span>
+						<div class="mui-media-body">货架陈列</div>
+					</a>
+				</li>
+				<li class="mui-table-view-cell mui-media mui-col-xs-4">
+					<a href="pandian.html" >
+						<span class="fa fa-pencil-square-o fa-icon"></span>
+						<div class="mui-media-body">盘点</div>
+					</a>
+			<!--	</li>
+				<li class="mui-table-view-cell mui-media mui-col-xs-4">
+					<a href="#">
+						<span class="mui-icon mui-icon-compose"></span>
+						<div class="mui-media-body">打印</div>
+						<div id='children'></div>
+					</a>
+				</li>-->
+				<li class="mui-table-view-cell mui-media mui-col-xs-4">
+					<a href="goodsInfoSearch.html">
+						<span class="fa fa-search  fa-icon"></span>
+						<div class="mui-media-body ">查询</div>
+					</a>
+				</li>
+			</ul>
+		</div>
+	</body>
+	<nav class="mui-bar mui-bar-tab">
+		<a class="mui-tab-item mui-active" href="index.html">
+			<span class="mui-icon mui-icon-home"></span>
+			<span class="mui-tab-label">批量打印</span>
+		</a>
+		<a class="mui-tab-item" href="goodsInfoSearch.html">
+			<span class="mui-icon mui-icon-search"></span>
+			<span class="mui-tab-label">今日调价</span>
+		</a>
+		<a class="mui-tab-item" href="pandian.html">
+			<span class="mui-icon mui-icon-compose"></span>
+			<span class="mui-tab-label">今日特价</span>
+		</a>
+		<a class="mui-tab-item" id="goLogout">
+			<span class="mui-icon mui-icon-redo"></span>
+			<span id="exit" class="mui-tab-label">注销</span>
+		</a>
+	</nav>
+	<script src="js/mui.min.js"></script>
+	<script type="text/javascript" src="js/mui.js"></script>
+	<script src="js/jquery.min.js"></script>
+	<script type="text/javascript" charset="utf-8">
+		mui.init({
+			keyEventBind: {
+				backbutton: true,
+			},
+		});
+		mui.plusReady(function() {
+			var backButtonPress = 0;
+			mui.back = function(event) {
+				backButtonPress++;
+				if(backButtonPress > 1) {
+					plus.runtime.quit();
+				} else {
+					plus.nativeUI.toast('再按一次退出应用');
+				}
+				setTimeout(function() {
+					backButtonPress = 0;
+				}, 1000);
+				return false;
+			};
+			document.getElementById('goLogout').addEventListener('tap', function() {
+				plus.webview.open("login.html", "login", {}, "slide-in-right");
+			});
+			document.getElementById('huojia').addEventListener('tap', function() {
+				plus.webview.open("huojialiebiao.html", "huojia", {}, "slide-in-right");
+			});
+		});
+			
+			
+		
+		//要货菜单
+		function getGoods() {
+			mui(".mui-popover").popover('toggle', document.getElementById("getGoods"));
+		}
+	</script>
+
+</html>
